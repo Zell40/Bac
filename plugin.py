@@ -1,32 +1,17 @@
 import os
-import time
-import random
-import threading
 import json
-import requests
-import urllib.parse
-import re
-import socket
-import traceback
-import difflib
-import unicodedata
-import datetime
 
-from supybot import callbacks, ircmsgs, conf, world, schedule, log
-from supybot.commands import wrap, additional, optional
-from .messages import FUN_NO_ANSWER_MESSAGES
+from supybot import callbacks, conf, log
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-from .events_mixin import EventsMixin
-from .game_mixin import GameMixin
-from .words_mixin import WordsMixin
-from .vote_mixin import VoteMixin
-from .stats_mixin import StatsMixin
-from .verif_mixin import VerifMixin
-from .feedback_mixin import FeedbackMixin
-from .api_mixin import ApiMixin
-from .persistence_mixin import PersistenceMixin
+from .local.events import EventsMixin
+from .local.game import GameMixin
+from .local.words import WordsMixin
+from .local.vote import VoteMixin
+from .local.stats import StatsMixin
+from .local.verif import VerifMixin
+from .local.feedback import FeedbackMixin
+from .local.api import ApiMixin
+from .local.persistence import PersistenceMixin
 
 
 class PetitBac(EventsMixin, GameMixin, WordsMixin, VoteMixin, StatsMixin, VerifMixin, FeedbackMixin, ApiMixin, PersistenceMixin, callbacks.Plugin):
@@ -127,3 +112,5 @@ class PetitBac(EventsMixin, GameMixin, WordsMixin, VoteMixin, StatsMixin, VerifM
         
         # Mots souvent utilisés :
         self.word_usage = {}  # mot → nombre d’utilisations
+
+Class = PetitBac
