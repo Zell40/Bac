@@ -28,22 +28,33 @@ class VerifMixin:
         """
         Envoie un événement structuré en TAGMSG
         sans impacter les clients texte.
+
+        InspIRCd refuse les lignes trop longues (numeric 417).
+        On plafonne donc la taille avant envoi.
         """
         tags = {
             "+pb": "v1",
-            "+ev": event_name,
+            "+ev": str(event_name),
         }
 
         for k, v in payload.items():
             tags[f"+{k}"] = str(v)
 
-        irc.queueMsg(
-            ircmsgs.IrcMsg(
-                command="TAGMSG",
-                args=(channel,),
-                server_tags=tags
-            )
+        msg = ircmsgs.IrcMsg(
+            command="TAGMSG",
+            args=(channel,),
+            server_tags=tags
         )
+        encoded = str(msg).encode("utf-8")
+        # Marge sous la limite IRC classique (512) / InspIRCd 417
+        if len(encoded) > 450:
+            log.warning(
+                "PetitBac: TAGMSG %s trop long (%d octets), non envoyé",
+                event_name, len(encoded)
+            )
+            return
+
+        irc.queueMsg(msg)
             
     def verif_list(self, irc, msg, args):
         channel = msg.args[0]

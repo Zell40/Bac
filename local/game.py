@@ -856,7 +856,6 @@ class GameMixin:
             "round_end",
             round=game["round"] - 1,
             round_scores=json.dumps(round_scores),
-            stats=json.dumps(self.global_stats.get("players", {})),
         )
         self._startRound(irc, channel)
 
