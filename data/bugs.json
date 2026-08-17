@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "user": "zell",
+        "message": "est-ce que !verifier accorder des points ?",
+        "timestamp": "01/03/2026 07:57:06"
+    },
+    {
+        "id": 2,
+        "user": "zell",
+        "message": "la commande !jouer redemarre le jeu avec 10 manches de 60 secondes chacunes malgré une modif de la config",
+        "timestamp": "01/03/2026 20:20:36"
+    },
+    {
+        "id": 3,
+        "user": "zell",
+        "message": "mots en multicat non reconnu pendant la phase de jeu : boulanger en metier ou marque",
+        "timestamp": "05/04/2026 09:46:37"
+    }
+]

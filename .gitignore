@@ -1,0 +1,12 @@
+# Cache Python
+__pycache__/
+*.py[cod]
+
+# Sauvegardes locales generees par le refactor
+*.bak_*
+
+# Fichiers de travail a supprimer
+data/a_supprimer/
+plugin.py-ok
+plugin.py-tags
+erreur-plugin.py

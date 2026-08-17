@@ -1,0 +1,903 @@
+{
+  "players": {
+    "zell": {
+      "games_played": 43,
+      "rounds_played": 129,
+      "words_validated": 185,
+      "full_combos": 24,
+      "total_points": 200,
+      "last_seen": "16/05/2026 18:54:58",
+      "best_speed": 14.942029476165771,
+      "display": "zell"
+    },
+    "cece9": {
+      "games_played": 4,
+      "rounds_played": 21,
+      "words_validated": 48,
+      "full_combos": 1,
+      "total_points": 55,
+      "last_seen": "07/02/2026 15:26:47",
+      "best_speed": null,
+      "display": "Cece9"
+    },
+    "alex": {
+      "games_played": 2,
+      "rounds_played": 18,
+      "words_validated": 27,
+      "full_combos": 2,
+      "total_points": 29,
+      "last_seen": "2026-01-17 20:34:10"
+    },
+    "ana": {
+      "games_played": 1,
+      "rounds_played": 13,
+      "words_validated": 28,
+      "full_combos": 5,
+      "total_points": 33,
+      "last_seen": "2026-01-17 18:58:38"
+    },
+    "nael": {
+      "games_played": 2,
+      "rounds_played": 2,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "last_seen": "2026-01-18 07:17:49"
+    },
+    "harry": {
+      "games_played": 0,
+      "rounds_played": 15,
+      "words_validated": 20,
+      "full_combos": 2,
+      "total_points": 22,
+      "last_seen": "2026-01-17 20:05:00"
+    },
+    "ale": {
+      "games_played": 2,
+      "rounds_played": 26,
+      "words_validated": 58,
+      "full_combos": 13,
+      "total_points": 71,
+      "last_seen": "2026-01-17 23:26:13"
+    },
+    "cara": {
+      "games_played": 2,
+      "rounds_played": 13,
+      "words_validated": 28,
+      "full_combos": 5,
+      "total_points": 53.0,
+      "last_seen": "28/01/2026 08:21:37",
+      "best_speed": 21.00153350830078,
+      "display": "cara"
+    },
+    "lou": {
+      "games_played": 2,
+      "rounds_played": 15,
+      "words_validated": 30,
+      "full_combos": 5,
+      "total_points": 42,
+      "last_seen": "28/01/2026 22:07:39",
+      "best_speed": null,
+      "display": "lou"
+    },
+    "particule": {
+      "games_played": 0,
+      "rounds_played": 5,
+      "words_validated": 11,
+      "full_combos": 2,
+      "total_points": 13,
+      "last_seen": "23/01/2026 17:35:19"
+    },
+    "hello": {
+      "games_played": 18,
+      "rounds_played": 10,
+      "words_validated": 18,
+      "full_combos": 3,
+      "total_points": 23.5,
+      "last_seen": "02/02/2026 09:45:13",
+      "best_speed": null,
+      "display": "hello"
+    },
+    "moi": {
+      "games_played": 9,
+      "rounds_played": 13,
+      "words_validated": 22,
+      "full_combos": 3,
+      "total_points": 38.0,
+      "last_seen": "28/01/2026 07:01:57",
+      "best_speed": 38.04789614677429,
+      "display": "Moi"
+    },
+    "moi35": {
+      "games_played": 7,
+      "rounds_played": 12,
+      "words_validated": 16,
+      "full_combos": 0,
+      "total_points": 21,
+      "last_seen": "27/01/2026 19:33:03",
+      "best_speed": null,
+      "display": "Moi35"
+    },
+    "epaulard": {
+      "games_played": 1,
+      "rounds_played": 5,
+      "words_validated": 11,
+      "full_combos": 2,
+      "total_points": 12,
+      "last_seen": "25/01/2026 21:42:45"
+    },
+    "zaza23": {
+      "display": "zaza23",
+      "games_played": 1,
+      "rounds_played": 1,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "26/01/2026 11:08:41"
+    },
+    "louise": {
+      "display": "Louise",
+      "games_played": 2,
+      "rounds_played": 8,
+      "words_validated": 17,
+      "full_combos": 2,
+      "total_points": 38.5,
+      "best_speed": 30.158437252044678,
+      "last_seen": "27/01/2026 16:59:27"
+    },
+    "orlane": {
+      "display": "orlane",
+      "games_played": 1,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "28/01/2026 14:43:49"
+    },
+    "andy54": {
+      "display": "andy54",
+      "games_played": 3,
+      "rounds_played": 0,
+      "words_validated": 43,
+      "full_combos": 9,
+      "total_points": 49,
+      "best_speed": 16.73843264579773,
+      "last_seen": "31/01/2026 13:02:14"
+    },
+    "hello53": {
+      "display": "hello53",
+      "games_played": 4,
+      "rounds_played": 3,
+      "words_validated": 6,
+      "full_combos": 2,
+      "total_points": 6,
+      "best_speed": 28.266626596450806,
+      "last_seen": "03/02/2026 06:44:00"
+    },
+    "zell53": {
+      "display": "Zell53",
+      "games_played": 3,
+      "rounds_played": 17,
+      "words_validated": 22,
+      "full_combos": 1,
+      "total_points": 26,
+      "best_speed": 55.96035075187683,
+      "last_seen": "03/02/2026 13:08:59"
+    },
+    "charly": {
+      "display": "charly",
+      "games_played": 0,
+      "rounds_played": 7,
+      "words_validated": 9,
+      "full_combos": 1,
+      "total_points": 9,
+      "best_speed": 47.73232412338257,
+      "last_seen": "11/02/2026 18:51:05"
+    },
+    "renuser54": {
+      "display": "renuser54",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 1,
+      "full_combos": 0,
+      "total_points": 1,
+      "best_speed": null,
+      "last_seen": "17/02/2026 09:50:59"
+    },
+    "lili": {
+      "display": "lili",
+      "games_played": 0,
+      "rounds_played": 8,
+      "words_validated": 15,
+      "full_combos": 4,
+      "total_points": 15,
+      "best_speed": 14.185420513153076,
+      "last_seen": "18/02/2026 16:21:30"
+    },
+    "": {
+      "display": "",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 0,
+      "total_points": 1,
+      "best_speed": null,
+      "last_seen": "08/02/2026 08:45:56"
+    },
+    "mila": {
+      "display": "mila",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "09/02/2026 16:06:16"
+    },
+    "renuser76": {
+      "display": "renuser76",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 3,
+      "full_combos": 1,
+      "total_points": 3,
+      "best_speed": 52.16979622840881,
+      "last_seen": "11/02/2026 07:45:08"
+    },
+    "renuser47": {
+      "display": "renuser47",
+      "games_played": 0,
+      "rounds_played": 3,
+      "words_validated": 3,
+      "full_combos": 0,
+      "total_points": 3,
+      "best_speed": null,
+      "last_seen": "11/02/2026 19:00:05"
+    },
+    "vava": {
+      "display": "vava",
+      "games_played": 0,
+      "rounds_played": 10,
+      "words_validated": 23,
+      "full_combos": 7,
+      "total_points": 29,
+      "best_speed": 15.12260103225708,
+      "last_seen": "12/02/2026 15:47:10"
+    },
+    "milie": {
+      "display": "milie",
+      "games_played": 0,
+      "rounds_played": 10,
+      "words_validated": 21,
+      "full_combos": 8,
+      "total_points": 23,
+      "best_speed": 11.888307571411133,
+      "last_seen": "13/02/2026 17:07:48"
+    },
+    "profortnite": {
+      "display": "profortnite",
+      "games_played": 0,
+      "rounds_played": 5,
+      "words_validated": 3,
+      "full_combos": 0,
+      "total_points": 3,
+      "best_speed": null,
+      "last_seen": "14/02/2026 14:14:22"
+    },
+    "soso": {
+      "display": "soso",
+      "games_played": 0,
+      "rounds_played": 10,
+      "words_validated": 16,
+      "full_combos": 4,
+      "total_points": 17,
+      "best_speed": 13.25971245765686,
+      "last_seen": "15/02/2026 18:21:53"
+    },
+    "chouchou": {
+      "display": "chouchou",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 0,
+      "total_points": 1,
+      "best_speed": null,
+      "last_seen": "15/02/2026 22:14:55"
+    },
+    "renuser56": {
+      "display": "renuser56",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 0,
+      "full_combos": 0,
+      "total_points": 0,
+      "best_speed": null,
+      "last_seen": "16/02/2026 09:56:08"
+    },
+    "renuser78": {
+      "display": "renuser78",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 0,
+      "full_combos": 0,
+      "total_points": 0,
+      "best_speed": null,
+      "last_seen": "16/02/2026 10:11:25"
+    },
+    "renuser57": {
+      "display": "renuser57",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 4,
+      "full_combos": 1,
+      "total_points": 4,
+      "best_speed": 30.38566493988037,
+      "last_seen": "16/02/2026 12:00:07"
+    },
+    "renuser25": {
+      "display": "renuser25",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "16/02/2026 12:16:38"
+    },
+    "renuser7": {
+      "display": "renuser7",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 6,
+      "full_combos": 2,
+      "total_points": 6,
+      "best_speed": 21.982667207717896,
+      "last_seen": "16/02/2026 12:23:30"
+    },
+    "renuser81": {
+      "display": "renuser81",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 0,
+      "total_points": 1,
+      "best_speed": null,
+      "last_seen": "16/02/2026 17:16:03"
+    },
+    "renuser55": {
+      "display": "renuser55",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "27/02/2026 11:26:45"
+    },
+    "renuser30": {
+      "display": "renuser30",
+      "games_played": 0,
+      "rounds_played": 3,
+      "words_validated": 6,
+      "full_combos": 1,
+      "total_points": 6,
+      "best_speed": 35.194443702697754,
+      "last_seen": "17/02/2026 09:55:37"
+    },
+    "renuser45": {
+      "display": "renuser45",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 0,
+      "total_points": 1,
+      "best_speed": null,
+      "last_seen": "17/02/2026 10:08:27"
+    },
+    "enuser|35": {
+      "display": "enuser|35",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "18/02/2026 11:24:09"
+    },
+    "renuser86": {
+      "display": "renuser86",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "19/02/2026 05:54:22"
+    },
+    "dadou9716": {
+      "display": "dadou9716",
+      "games_played": 0,
+      "rounds_played": 15,
+      "words_validated": 15,
+      "full_combos": 0,
+      "total_points": 19,
+      "best_speed": null,
+      "last_seen": "21/02/2026 19:12:30"
+    },
+    "yuuki_hy97": {
+      "display": "yuuki_hy97",
+      "games_played": 0,
+      "rounds_played": 16,
+      "words_validated": 20,
+      "full_combos": 4,
+      "total_points": 22,
+      "best_speed": 40.69914627075195,
+      "last_seen": "21/02/2026 19:17:52"
+    },
+    "lyssa_1132": {
+      "display": "lyssa_1132",
+      "games_played": 0,
+      "rounds_played": 8,
+      "words_validated": 5,
+      "full_combos": 0,
+      "total_points": 5,
+      "best_speed": null,
+      "last_seen": "21/02/2026 19:14:50"
+    },
+    "ami": {
+      "display": "ami",
+      "games_played": 0,
+      "rounds_played": 9,
+      "words_validated": 17,
+      "full_combos": 4,
+      "total_points": 21,
+      "best_speed": 21.882027864456177,
+      "last_seen": "23/02/2026 15:31:33"
+    },
+    "carlita34": {
+      "display": "carlita34",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 1,
+      "total_points": 1,
+      "best_speed": 38.90607571601868,
+      "last_seen": "24/02/2026 09:39:35"
+    },
+    "renuser4": {
+      "display": "renuser4",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 3,
+      "full_combos": 1,
+      "total_points": 3,
+      "best_speed": 59.02149963378906,
+      "last_seen": "26/02/2026 18:45:56"
+    },
+    "renuser42": {
+      "display": "renuser42",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 0,
+      "total_points": 1,
+      "best_speed": null,
+      "last_seen": "27/02/2026 08:35:55"
+    },
+    "renuser61": {
+      "display": "renuser61",
+      "games_played": 0,
+      "rounds_played": 10,
+      "words_validated": 15,
+      "full_combos": 3,
+      "total_points": 19,
+      "best_speed": 37.53211045265198,
+      "last_seen": "28/02/2026 20:01:08"
+    },
+    "renuser41": {
+      "display": "renuser41",
+      "games_played": 0,
+      "rounds_played": 14,
+      "words_validated": 21,
+      "full_combos": 4,
+      "total_points": 21,
+      "best_speed": 14.164604187011719,
+      "last_seen": "01/03/2026 21:41:31"
+    },
+    "renuser94": {
+      "display": "renuser94",
+      "games_played": 0,
+      "rounds_played": 3,
+      "words_validated": 4,
+      "full_combos": 0,
+      "total_points": 4,
+      "best_speed": null,
+      "last_seen": "02/03/2026 17:50:48"
+    },
+    "ou11": {
+      "display": "ou11",
+      "games_played": 0,
+      "rounds_played": 4,
+      "words_validated": 3,
+      "full_combos": 1,
+      "total_points": 3,
+      "best_speed": 48.3106472492218,
+      "last_seen": "05/03/2026 08:42:54"
+    },
+    "bby": {
+      "display": "bby",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "06/03/2026 13:38:30"
+    },
+    "toutounette22800": {
+      "display": "toutounette22800",
+      "games_played": 0,
+      "rounds_played": 25,
+      "words_validated": 39,
+      "full_combos": 5,
+      "total_points": 43,
+      "best_speed": 26.057448863983154,
+      "last_seen": "07/03/2026 00:15:07"
+    },
+    "julorie": {
+      "display": "julorie",
+      "games_played": 0,
+      "rounds_played": 3,
+      "words_validated": 3,
+      "full_combos": 0,
+      "total_points": 3,
+      "best_speed": null,
+      "last_seen": "07/03/2026 23:02:37"
+    },
+    "chikalouloi": {
+      "display": "chikalouloi",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 2,
+      "full_combos": 1,
+      "total_points": 2,
+      "best_speed": 20.67995572090149,
+      "last_seen": "18/03/2026 19:05:46"
+    },
+    "cr7": {
+      "display": "cr7",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 4,
+      "full_combos": 0,
+      "total_points": 4,
+      "best_speed": null,
+      "last_seen": "19/03/2026 18:33:29"
+    },
+    "soly": {
+      "display": "soly",
+      "games_played": 0,
+      "rounds_played": 8,
+      "words_validated": 13,
+      "full_combos": 4,
+      "total_points": 13,
+      "best_speed": 15.91473913192749,
+      "last_seen": "20/03/2026 16:34:48"
+    },
+    "o_anell4546": {
+      "display": "o_anell4546",
+      "games_played": 0,
+      "rounds_played": 8,
+      "words_validated": 15,
+      "full_combos": 2,
+      "total_points": 15,
+      "best_speed": 23.134356021881104,
+      "last_seen": "21/03/2026 22:37:51"
+    },
+    "loprtui": {
+      "display": "loprtui",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 1,
+      "full_combos": 1,
+      "total_points": 1,
+      "best_speed": 50.257084131240845,
+      "last_seen": "26/03/2026 18:22:31"
+    },
+    "jade": {
+      "display": "jade",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 3,
+      "full_combos": 1,
+      "total_points": 3,
+      "best_speed": 56.2120099067688,
+      "last_seen": "29/03/2026 18:08:28"
+    },
+    "lilly": {
+      "display": "lilly",
+      "games_played": 0,
+      "rounds_played": 11,
+      "words_validated": 20,
+      "full_combos": 7,
+      "total_points": 22,
+      "best_speed": 17.213990449905396,
+      "last_seen": "04/04/2026 21:26:01"
+    },
+    "b": {
+      "display": "b",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 3,
+      "full_combos": 1,
+      "total_points": 3,
+      "best_speed": 24.496455907821655,
+      "last_seen": "04/04/2026 22:45:10"
+    },
+    "melina": {
+      "display": "melina",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 6,
+      "full_combos": 2,
+      "total_points": 6,
+      "best_speed": 17.440937995910645,
+      "last_seen": "08/04/2026 11:41:56"
+    },
+    "roro": {
+      "display": "roro",
+      "games_played": 0,
+      "rounds_played": 10,
+      "words_validated": 22,
+      "full_combos": 7,
+      "total_points": 30,
+      "best_speed": 23.22502326965332,
+      "last_seen": "09/04/2026 18:15:28"
+    },
+    "melo": {
+      "display": "melo",
+      "games_played": 0,
+      "rounds_played": 31,
+      "words_validated": 57,
+      "full_combos": 14,
+      "total_points": 60,
+      "best_speed": 12.239508152008057,
+      "last_seen": "10/04/2026 01:35:43"
+    },
+    "kelly": {
+      "display": "kelly",
+      "games_played": 0,
+      "rounds_played": 5,
+      "words_validated": 10,
+      "full_combos": 3,
+      "total_points": 10,
+      "best_speed": 13.933116912841797,
+      "last_seen": "12/04/2026 00:39:16"
+    },
+    "kiki": {
+      "display": "kiki",
+      "games_played": 0,
+      "rounds_played": 17,
+      "words_validated": 27,
+      "full_combos": 3,
+      "total_points": 30,
+      "best_speed": 21.304027795791626,
+      "last_seen": "22/04/2026 15:34:09"
+    },
+    "anonyme": {
+      "display": "anonyme",
+      "games_played": 0,
+      "rounds_played": 10,
+      "words_validated": 20,
+      "full_combos": 7,
+      "total_points": 21,
+      "best_speed": 24.494373321533203,
+      "last_seen": "23/04/2026 20:38:49"
+    },
+    "tiphaine": {
+      "display": "tiphaine",
+      "games_played": 0,
+      "rounds_played": 3,
+      "words_validated": 5,
+      "full_combos": 1,
+      "total_points": 5,
+      "best_speed": 44.3730571269989,
+      "last_seen": "26/04/2026 19:31:29"
+    },
+    "cloana": {
+      "display": "cloana",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "26/04/2026 20:59:52"
+    },
+    "luigi": {
+      "display": "luigi",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 5,
+      "full_combos": 1,
+      "total_points": 5,
+      "best_speed": 38.343214988708496,
+      "last_seen": "28/04/2026 00:56:26"
+    },
+    "luigi_asr": {
+      "display": "luigi_asr",
+      "games_played": 0,
+      "rounds_played": 12,
+      "words_validated": 26,
+      "full_combos": 8,
+      "total_points": 29,
+      "best_speed": 5.981150150299072,
+      "last_seen": "30/04/2026 01:08:05"
+    },
+    "colleen_23": {
+      "display": "colleen_23",
+      "games_played": 0,
+      "rounds_played": 7,
+      "words_validated": 13,
+      "full_combos": 1,
+      "total_points": 15,
+      "best_speed": 53.283369064331055,
+      "last_seen": "30/04/2026 15:46:54"
+    },
+    "enuser|117": {
+      "display": "enuser|117",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 3,
+      "best_speed": null,
+      "last_seen": "01/05/2026 00:26:07"
+    },
+    "aldn": {
+      "display": "aldn",
+      "games_played": 0,
+      "rounds_played": 425,
+      "words_validated": 972,
+      "full_combos": 295,
+      "total_points": 1016,
+      "best_speed": 11.431676387786865,
+      "last_seen": "05/06/2026 23:32:28"
+    },
+    "kim": {
+      "display": "kim",
+      "games_played": 0,
+      "rounds_played": 7,
+      "words_validated": 13,
+      "full_combos": 3,
+      "total_points": 14,
+      "best_speed": 28.527723789215088,
+      "last_seen": "18/05/2026 18:13:15"
+    },
+    "chichi": {
+      "display": "chichi",
+      "games_played": 0,
+      "rounds_played": 7,
+      "words_validated": 10,
+      "full_combos": 1,
+      "total_points": 11,
+      "best_speed": 56.919981241226196,
+      "last_seen": "22/05/2026 15:12:41"
+    },
+    "sayna": {
+      "display": "sayna",
+      "games_played": 0,
+      "rounds_played": 4,
+      "words_validated": 8,
+      "full_combos": 1,
+      "total_points": 8,
+      "best_speed": 47.06822419166565,
+      "last_seen": "26/05/2026 23:23:41"
+    },
+    "zaz": {
+      "display": "zaz",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 4,
+      "full_combos": 0,
+      "total_points": 4,
+      "best_speed": null,
+      "last_seen": "23/06/2026 14:51:09"
+    },
+    "niu9110": {
+      "display": "niu9110",
+      "games_played": 0,
+      "rounds_played": 2,
+      "words_validated": 2,
+      "full_combos": 1,
+      "total_points": 2,
+      "best_speed": 52.737207889556885,
+      "last_seen": "24/06/2026 22:37:13"
+    },
+    "tic": {
+      "display": "tic",
+      "games_played": 0,
+      "rounds_played": 4,
+      "words_validated": 6,
+      "full_combos": 1,
+      "total_points": 6,
+      "best_speed": 44.04747533798218,
+      "last_seen": "26/06/2026 13:57:27"
+    },
+    "val": {
+      "display": "val",
+      "games_played": 0,
+      "rounds_played": 1,
+      "words_validated": 2,
+      "full_combos": 0,
+      "total_points": 2,
+      "best_speed": null,
+      "last_seen": "29/06/2026 14:23:40"
+    },
+    "marie": {
+      "display": "marie",
+      "games_played": 0,
+      "rounds_played": 27,
+      "words_validated": 54,
+      "full_combos": 9,
+      "total_points": 54,
+      "best_speed": 24.101739645004272,
+      "last_seen": "05/07/2026 10:16:01"
+    },
+    "yep": {
+      "display": "yep",
+      "games_played": 0,
+      "rounds_played": 5,
+      "words_validated": 9,
+      "full_combos": 1,
+      "total_points": 9,
+      "best_speed": 34.5029239654541,
+      "last_seen": "11/07/2026 08:41:12"
+    }
+  },
+  "weekly": {
+    "start": 1783237686.819381,
+    "players": {
+      "marie": 54,
+      "yep": 9
+    },
+    "best_score": {
+      "user": "marie",
+      "points": 54
+    },
+    "best_full_combos": {
+      "user": "marie",
+      "count": 9
+    },
+    "best_speed": {
+      "user": "marie",
+      "seconds": 24.101739645004272
+    }
+  },
+  "global": {
+    "best_score": {
+      "user": "aldn",
+      "points": 1016
+    },
+    "best_full_combos": {
+      "user": "aldn",
+      "count": 295
+    },
+    "best_rounds": {
+      "user": "zell",
+      "count": 155
+    },
+    "best_speed": {
+      "user": "luigi_asr",
+      "seconds": 5.981150150299072
+    },
+    "games_played": 228,
+    "rounds_played": 1177,
+    "words_validated": 2331,
+    "full_combos": 516,
+    "total_points": 2723.5,
+    "last_activity": "11/07/2026 08:41:12"
+  }
+}

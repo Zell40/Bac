@@ -1,0 +1,78 @@
+{
+    "facile": {
+        "display": "Facile",
+        "categories": 3,
+        "duration": 60,
+        "maxrounds": 10,
+        "created_at": 1770025986,
+        "created_by": "Zell",
+        "last_used": 1777224735,
+        "times_used": 2,
+        "locked": true,
+        "modified_at": null,
+        "modified_by": null
+    },
+    "moyen": {
+        "display": "Moyen",
+        "categories": 5,
+        "duration": 45,
+        "maxrounds": 12,
+        "created_at": 1770025986,
+        "created_by": "Zell",
+        "last_used": 1778935930,
+        "times_used": 3,
+        "locked": true,
+        "modified_at": null,
+        "modified_by": null
+    },
+    "difficile": {
+        "display": "Difficile",
+        "categories": 7,
+        "duration": 45,
+        "maxrounds": 15,
+        "created_at": 1770025986,
+        "created_by": "Zell",
+        "last_used": null,
+        "times_used": 0,
+        "locked": true,
+        "modified_at": null,
+        "modified_by": null
+    },
+    "extreme": {
+        "display": "Extreme",
+        "categories": 7,
+        "duration": 30,
+        "maxrounds": 15,
+        "created_at": 1770025986,
+        "created_by": "Zell",
+        "last_used": null,
+        "times_used": 0,
+        "locked": true,
+        "modified_at": null,
+        "modified_by": null
+    },
+    "zell53": {
+        "display": "Zell53",
+        "categories": 4,
+        "duration": 45,
+        "maxrounds": 10,
+        "created_at": 1770120479,
+        "created_by": "Zell53",
+        "last_used": 1770120531,
+        "times_used": 1,
+        "modified_at": null,
+        "modified_by": null
+    },
+    "zell": {
+        "display": "Zell",
+        "categories": 3,
+        "duration": 30,
+        "maxrounds": 3,
+        "created_at": 1772397472,
+        "created_by": "Zell",
+        "last_used": 1772470641,
+        "times_used": 4,
+        "modified_at": null,
+        "modified_by": null
+    }
+}

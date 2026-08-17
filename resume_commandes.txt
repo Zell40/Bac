@@ -1,0 +1,10 @@
+
+roundDuration	@config supybot.plugins.PetitBac.roundDuration	@config supybot.plugins.PetitBac.roundDuration 60
+
+idleTimeout	@config supybot.plugins.PetitBac.idleTimeout	@config supybot.plugins.PetitBac.idleTimeout 120
+
+autoStart	@config supybot.plugins.PetitBac.autoStart	@config supybot.plugins.PetitBac.autoStart True
+
+enabled	@config supybot.plugins.PetitBac.enabled.#canal	@config supybot.plugins.PetitBac.enabled.#canal True
+
+categoryRotation	@config supybot.plugins.PetitBac.categoryRotation	@config supybot.plugins.PetitBac.categoryRotation 3

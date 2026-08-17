@@ -1,0 +1,76 @@
+{
+  "no_answer": [
+    "😴 Vous dormez ou quoi ? Personne n’a donné de mot !",
+    "📡 Allô la Terre ? Aucun mot reçu ici !",
+    "👻 On dirait que tout le monde s’est volatilisé… aucun mot trouvé !",
+    "📚 Personne n’a rendu sa copie… zéro mot enregistré !",
+    "🎤 Et… c’est un grand silence ! Aucun mot proposé !",
+    "🤖 Analyse terminée : 0 mot détecté. Redémarrage du cerveau conseillé.",
+    "🧐 Vous jouez à cache-cache avec les mots ? Rien reçu !",
+    "🌵 Ambiance désert… aucun mot à l’horizon.",
+    "🛌 Tout le monde fait la sieste ou quoi ?",
+    "🧊 Silence glacial… aucun mot n’a fondu.",
+    "🕳️ Le vide intersidéral… aucun mot n’a survécu.",
+    "📭 Boîte aux lettres vide : aucun mot livré.",
+    "🧘 Trop zen… personne n’a bougé un neurone.",
+    "🎲 Pas de mot, pas de jeu. On relance une partie ou quoi ?",
+    "🦗 *Cri-cri-cri*… même les grillons sont gênés."
+   ],
+
+  "typo_corrections": [
+    "✏️ Petit coup de pouce : j’ai corrigé « {original} » en « {corrected} ». Je t’ai à l’œil 👀",
+    "🤓 J’ai ajusté ton mot : « {original} » → « {corrected} ». On fait équipe !",
+    "🛠️ Correction automatique activée : « {original} » devient « {corrected} ». Magie ✨",
+    "😅 Je crois que tu voulais dire « {corrected} ». Je t’aide, c’est cadeau.",
+    "📚 Orthographe boostée : « {original} » corrigé en « {corrected} ». Même pas mal.",
+    "🧠 J’ai deviné ton intention : « {original} » → « {corrected} ». Je suis trop fort.",
+    "🚀 Correction express : « {original} » transformé en « {corrected} ». On continue !",
+    "🪄 Abracadabra : « {original} » devient « {corrected} ». Même Harry Potter serait jaloux.",
+    "🤖 Optimisation linguistique : « {original} » → « {corrected} ». Merci de votre compréhension.",
+    "🕵️ J’ai enquêté… et trouvé que tu voulais dire « {corrected} ».",
+    "🔧 Correction fine : « {original} » optimisé en « {corrected} ». Le style avant tout.",
+    "📐 Ajustement orthographique : « {original} » → « {corrected} ». Nickel.",
+    "🧩 Le mot était presque bon… je l’ai complété : « {corrected} ».",
+    "🎯 Correction ciblée : « {original} » → « {corrected} ». Touché.",
+    "✨ Mise à niveau automatique : « {corrected} » est plus joli comme ça."
+   ],
+
+  "full_combo": [
+    "🔥 Full combo ! Toutes les catégories validées, quelle machine ! (+1 point bonus)",
+    "💯 Parfait ! Tu viens de remplir toutes les catégories comme un chef. (+1 point)",
+    "🏆 Full combo ! Tu joues en mode légende aujourd’hui. (+1 point)",
+    "🌟 Tout rempli, tout validé. Respect. (+1 point bonus)",
+    "🚀 Full combo ! Tu viens de décoller vers la victoire. (+1 point)",
+    "🎉 Incroyable ! Toutes les catégories complétées. Bonus de +1 point !",
+    "🥇 Full combo magistral ! Tu gagnes +1 point supplémentaire.",
+    "⚡ Performance parfaite ! +1 point pour ce full combo.",
+    "🧠 Zéro faute, tout validé. +1 point bien mérité.",
+    "🌈 Full combo ! Le bonus de +1 point est pour toi."
+   ],
+
+  "difficult_word": [
+    "💎 Beau mot difficile ! Ça mérite clairement les 2 points.",
+    "🧠 Mot expert détecté. +2 points bien mérités.",
+    "📚 Mot rare repéré ! Tu joues dans la cour des grands. (+2 points)",
+    "✨ Mot difficile validé. Classe. (+2 points)",
+    "🏅 Bravo, ce mot n’était pas simple ! (+2 points)",
+    "🔥 Mot de haut niveau ! +2 points pour cette trouvaille.",
+    "🎓 Mot érudit détecté. +2 points ajoutés.",
+    "🌌 Mot rare comme une étoile filante. +2 points !",
+    "🧬 Mot complexe validé. +2 points pour toi.",
+    "✨ Jackpot linguistique ! +2 points gagnés."
+   ],
+
+  "end_round": [
+    "⏳ Fin de la manche ! Les cerveaux peuvent souffler.",
+    "🛎️ Manche terminée ! On compte les points…",
+    "📊 Fin du round ! Les résultats arrivent.",
+    "🎬 Clap de fin pour cette manche.",
+    "🧮 Manche terminée, calcul des scores en cours…",
+    "🧱 Fin de la manche ! On passe à la suivante.",
+    "🎯 Round terminé ! Préparez vos prochains mots.",
+    "📘 On tourne la page : fin de la manche.",
+    "🔔 C’est fini pour cette manche !",
+    "🎲 Manche close ! On vérifie les réponses."
+   ]
+}
