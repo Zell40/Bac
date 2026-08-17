@@ -74,7 +74,7 @@ class PetitBac(EventsMixin, GameMixin, WordsMixin, VoteMixin, StatsMixin, VerifM
         # Charger dictionnaire JSON
         self.dictionnaire = set()
         try:
-            path = os.path.join(os.path.dirname(__file__), "data", "dictionnaire.json")
+            path = os.path.join(self.storageDir, "dictionnaire.json")
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 self.dictionnaire = set(data.keys())

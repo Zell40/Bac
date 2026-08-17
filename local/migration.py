@@ -2,8 +2,9 @@ import os
 import json
 import unicodedata
 
-BASE = os.path.join(os.path.dirname(__file__), "data", "categories")
-OUTPUT = os.path.join(os.path.dirname(__file__), "data", "categories.json")
+_PLUGIN_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE = os.path.join(_PLUGIN_DIR, "data", "categories")
+OUTPUT = os.path.join(_PLUGIN_DIR, "data", "categories.json")
 
 # Si tu veux pré-remplir une blacklist :
 DEFAULT_BLACKLIST = [

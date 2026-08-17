@@ -24,7 +24,7 @@ class PersistenceMixin:
     # Stats global
     # ----------------------------------------------------------------------
     def _load_global_stats(self):
-        path = os.path.join(os.path.dirname(__file__), "data", "global_stats.json")
+        path = os.path.join(self.storageDir, "global_stats.json")
         if not os.path.exists(path):
             return {"players": {}}
         try:
@@ -34,7 +34,7 @@ class PersistenceMixin:
             return {"players": {}}
 
     def _save_global_stats(self):
-        path = os.path.join(os.path.dirname(__file__), "data", "global_stats.json")
+        path = os.path.join(self.storageDir, "global_stats.json")
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self.global_stats, f, indent=2, ensure_ascii=False)
             
@@ -265,7 +265,7 @@ class PersistenceMixin:
     # Scores
     #-----------------------------------------------------------------------   
     def _load_scores(self):
-        path = os.path.join(os.path.dirname(__file__), "data", "scores.json")
+        path = os.path.join(self.storageDir, "scores.json")
         if not os.path.exists(path):
             return {}
         try:
@@ -275,7 +275,7 @@ class PersistenceMixin:
             return {}
             
     def _save_scores(self):
-        path = os.path.join(os.path.dirname(__file__), "data", "scores.json")
+        path = os.path.join(self.storageDir, "scores.json")
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self.scoreboard, f, indent=2, ensure_ascii=False)
             
