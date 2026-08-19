@@ -116,6 +116,7 @@ class EventsMixin:
 
             irc.queueMsg(ircmsgs.notice(nick,
                 f"Bonne chance {nick} !"))
+            self._send_state_sync(irc, channel)
             return
 
         # Si aucune partie n'est en cours et autoStart activé → lancer une partie
@@ -219,11 +220,13 @@ class EventsMixin:
         if mot in exclusions:
             for cat in exclusions[mot]:
                 if cat in game["categories"]:
+                    self._word_ko(irc, channel, nick, mot, "excluded", cat)
                     irc.queueMsg(ircmsgs.privmsg(channel,
                         f"{nick}: ❌ Le mot « {text} » n'est pas valide pour la catégorie {cat}."))
                     return
 
         if mot in game.get("used_words", set()):
+            self._word_ko(irc, channel, nick, mot, "already_used")
             irc.queueMsg(ircmsgs.privmsg(channel,
                 f"{nick}: ❌ Le mot « {text} » a déjà été utilisé dans cette partie."))
             return
@@ -235,12 +238,14 @@ class EventsMixin:
         first_letter = "".join(c for c in first_letter if unicodedata.category(c) != "Mn").lower()
 
         if first_letter != lettre:
+            self._word_ko(irc, channel, nick, mot, "wrong_letter")
             irc.queueMsg(ircmsgs.privmsg(channel,
                 f"{nick}: ❌ Le mot « {text} » ne commence pas par la lettre {game['letter']}."))
             return
 
         for used_cat, used_word in game["answers"].get(nick_key, {}).items():
             if used_word == mot:
+                self._word_ko(irc, channel, nick, mot, "already_round")
                 irc.queueMsg(ircmsgs.privmsg(channel,
                     f"{nick}: ⚠️ Tu as déjà utilisé « {text} » dans cette manche."))
                 return
@@ -253,6 +258,7 @@ class EventsMixin:
 
                 # Catégorie hors manche → refus immédiat
                 if cat not in game["categories"]:
+                    self._word_ko(irc, channel, nick, mot, "bad_cat", cat)
                     irc.queueMsg(ircmsgs.privmsg(channel,
                         f"{nick}: ❌ Le mot « {text} » n'est pas valide pour les catégories du tour."))
                     return
@@ -280,6 +286,7 @@ class EventsMixin:
                 irc.queueMsg(ircmsgs.privmsg(channel,
                     f"{nick}: {msg_bonus} — Catégorie {cat}"))
 
+                self._word_ok(irc, channel, nick, mot, cat, points)
                 self._update_global_stats(nick_key, words_validated=1, total_points=points)
                 self._check_full_combo(irc, channel, nick)
                 return
@@ -376,6 +383,7 @@ class EventsMixin:
                     irc.queueMsg(ircmsgs.privmsg(channel,
                         f"{nick}: ✔️ Le mot « {mot} » été reconnu par l'IA 🤖 (+0.5 point) — Catégorie {guessed}"))
 
+                    self._word_ok(irc, channel, nick, mot, guessed, 0.5)
                     self._check_full_combo(irc, channel, nick)
                     return
 
@@ -383,6 +391,11 @@ class EventsMixin:
                 f"{nick}: ❌ Le mot « {text} » n'est pas valide pour les catégories du tour."))
             irc.queueMsg(ircmsgs.privmsg(channel,
                 f"ℹ️ Tu peux proposer ce mot en tapant : !verifier <catégorie> {text}"))
+            self._word_ko(irc, channel, nick, mot, "invalid")
+            self._send_event(
+                irc, channel, "verify_hint",
+                nick=nick, word=mot,
+            )
             return
 
         # ----------------------------------------------------------------------
@@ -413,6 +426,7 @@ class EventsMixin:
         irc.queueMsg(ircmsgs.privmsg(channel,
             f"{nick}: {msg_bonus} — Catégorie {categorie_trouvee}"))
 
+        self._word_ok(irc, channel, nick, mot, categorie_trouvee, points)
         self._update_global_stats(nick_key, words_validated=1, total_points=points)
         self._check_full_combo(irc, channel, nick)
 

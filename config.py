@@ -138,6 +138,19 @@ conf.registerGlobalValue(conf.supybot.plugins.PetitBac, 'apiAddress',
 conf.registerGlobalValue(conf.supybot.plugins.PetitBac, 'apiPort',
     registry.Integer(0, """Port sur lequel l’API écoute (ex: 8282)."""))
 
+# ----------------------------------------------------------------------
+# Salon plus silencieux (TAGMSG Orbit, moins de PRIVMSG redondants)
+# ----------------------------------------------------------------------
+conf.registerChannelValue(
+    PetitBac,
+    'quietChannel',
+    registry.Boolean(
+        True,
+        """Réduit les PRIVMSG redondants (séparateurs, rappels, décomptes texte).
+        Les TAGMSG Orbit et les messages essentiels (lettre, mots, scores) restent."""
+    )
+)
+
 
 
 

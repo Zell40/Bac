@@ -359,14 +359,15 @@ class GameMixin:
                 player=player
             )
             
-            event_name = f"start_{channel}_hello"
-            schedule.addEvent(
-                lambda: irc.queueMsg(ircmsgs.privmsg(channel,
-                    f"📢 Bonjour {player} ! Rejoins-nous, ça va commencer...")),
-                time.time() + delay,
-                name=event_name
-            )
-            game["start_timers"].append(event_name)
+            if not self._is_quiet(channel):
+                event_name = f"start_{channel}_hello"
+                schedule.addEvent(
+                    lambda: irc.queueMsg(ircmsgs.privmsg(channel,
+                        f"📢 Bonjour {player} ! Rejoins-nous, ça va commencer...")),
+                    time.time() + delay,
+                    name=event_name
+                )
+                game["start_timers"].append(event_name)
 
             # --- RÈGLES COMPACTES & STYLISÉES ---
             rules_lines = [
@@ -442,27 +443,24 @@ class GameMixin:
             )
             game["start_timers"].append(tag_name)
 
-            # PRIVMSG retardé
-            msg_name = f"start_{channel}_{n}"
-            schedule.addEvent(
-                lambda x=n: irc.queueMsg(ircmsgs.privmsg(channel, f"⏳ Le jeu commence dans {x}...")),
-                time.time() + delay,
-                name=msg_name
-            )
-            game["start_timers"].append(msg_name)
+            if not self._is_quiet(channel):
+                msg_name = f"start_{channel}_{n}"
+                schedule.addEvent(
+                    lambda x=n: irc.queueMsg(ircmsgs.privmsg(
+                        channel, f"⏳ Le jeu commence dans {x}...")),
+                    time.time() + delay,
+                    name=msg_name
+                )
+                game["start_timers"].append(msg_name)
 
             delay += 1.0
 
-        # GO !
-        # TAG : lancement officiel
-        self._send_event(
-            irc,
-            channel,
-            "game_go"
-        )
         event_name = f"start_go_{channel}"
         schedule.addEvent(
-            lambda: irc.queueMsg(ircmsgs.privmsg(channel, "🚀 C'est parti !")),
+            lambda: (
+                self._send_event(irc, channel, "game_go"),
+                irc.queueMsg(ircmsgs.privmsg(channel, "🚀 C'est parti !")),
+            ),
             time.time() + delay,
             name=event_name
         )
@@ -551,34 +549,24 @@ class GameMixin:
             totalRounds=max_rounds
         )
 
-        # --- Message : numéro de manche ---
-        irc.queueMsg(ircmsgs.privmsg(channel,
-            f"📊 Manche {game['round']} / {max_rounds}"))
+        irc.queueMsg(ircmsgs.privmsg(
+            channel,
+            f"📊 Manche {game['round']}/{max_rounds}  |  "
+            f"🎲 Lettre : \x02\x0304{game['letter']}\x0F  |  "
+            f"📚 {', '.join(game['categories'])}"
+        ))
 
-        # --- Lettre + catégories ---
-        event_name = f"round_info_{channel}"
-        schedule.addEvent(
-            lambda: irc.queueMsg(ircmsgs.privmsg(
-                channel,
-                f"🎲 Lettre : \x02\x0304{game['letter']}\x0F  |  "
-                f"📚 Catégories : \x02\x0303{', '.join(game['categories'])}\x0F"
-            )),
-            time.time(),
-            name=event_name
-        )
-        game["round_timers"].append(event_name)
-
-        # --- Message rappel ---
-        event_name = f"round_reminder_{channel}"
-        schedule.addEvent(
-            lambda: irc.queueMsg(ircmsgs.privmsg(
-                channel,
-                "📌 Rappel : tapez un mot par catégorie, sans virgule, point ou autre ponctuation."
-            )),
-            time.time() + 0.1,
-            name=event_name
-        )
-        game["round_timers"].append(event_name)
+        if not self._is_quiet(channel):
+            event_name = f"round_reminder_{channel}"
+            schedule.addEvent(
+                lambda: irc.queueMsg(ircmsgs.privmsg(
+                    channel,
+                    "📌 Rappel : tapez un mot par catégorie, sans virgule, point ou autre ponctuation."
+                )),
+                time.time() + 0.1,
+                name=event_name
+            )
+            game["round_timers"].append(event_name)
 
         # --- Timer principal de fin de manche ---
         event_name = f"round_timer_{channel}"
@@ -598,28 +586,50 @@ class GameMixin:
         if game.get("paused"):
             return
 
-        # --- Countdown 20 / 10 / 5 ---
         countdown_events = []
+
+        def _fire_countdown(seconds_left):
+            if channel not in self.active_games:
+                return
+            g = self.active_games[channel]
+            if g.get("stopped") or g.get("paused") or not g.get("round_active"):
+                return
+            self._send_event(irc, channel, "round_countdown", seconds=seconds_left)
+            if not self._is_quiet(channel):
+                irc.queueMsg(ircmsgs.privmsg(
+                    channel, f"⏳ Il reste {seconds_left} secondes..."))
+
         for t in (20, 10, 5):
             if duration > t:
                 ev_name = f"countdown_{channel}_{t}"
                 schedule.addEvent(
-                    lambda s=t: irc.queueMsg(ircmsgs.privmsg(
-                        channel, f"⏳ Il reste {s} secondes..."
-                    )),
+                    lambda s=t: _fire_countdown(s),
                     time.time() + (duration - t),
                     name=ev_name
                 )
-                # Messages TAGS
-                self._send_event(
-                    irc,
-                    channel,
-                    "round_countdown",
-                    seconds=t
-                )
                 countdown_events.append(ev_name)
 
+        for elapsed in range(5, duration, 5):
+            left = duration - elapsed
+            if left in (20, 10, 5):
+                continue
+            ev_name = f"tick_{channel}_{left}"
+            schedule.addEvent(
+                lambda s=left: self._round_tick(irc, channel, s),
+                time.time() + elapsed,
+                name=ev_name
+            )
+            countdown_events.append(ev_name)
+
         game["countdown_timers"] = countdown_events
+
+    def _round_tick(self, irc, channel, seconds_left):
+        if channel not in self.active_games:
+            return
+        game = self.active_games[channel]
+        if game.get("stopped") or game.get("paused") or not game.get("round_active"):
+            return
+        self._send_event(irc, channel, "round_tick", seconds_left=seconds_left)
 
     def _endRound(self, irc, channel):
         """Passe à la manche suivante ou termine la partie proprement."""
@@ -668,16 +678,14 @@ class GameMixin:
         # ------------------------------------------------------------------
         if game["round"] > max_rounds:
         
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             irc.queueMsg(ircmsgs.privmsg(channel,
                 "🏆  FIN DE LA PARTIE !  🏆"))
             irc.queueMsg(ircmsgs.privmsg(channel,
                 f"🎯 Vous avez atteint les {max_rounds} manches."))
             irc.queueMsg(ircmsgs.privmsg(channel,
                 "📊 Voici le classement final :"))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
             # Classement final
             partie_scores = dict(self.scoreboard)
@@ -686,8 +694,7 @@ class GameMixin:
             for user, pts in classement:
                 irc.queueMsg(ircmsgs.privmsg(channel,
                     f"  • {user} : {pts} point(s)"))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
             # ------------------------------------------------------------------
             # TOP JOUEURS GLOBAUX
@@ -713,8 +720,7 @@ class GameMixin:
                         f"  {rank}. {user} — {pts} pts, {fc} combos, {rounds} manches"))
                     rank += 1
 
-                irc.queueMsg(ircmsgs.privmsg(channel,
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+                self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
             # ------------------------------------------------------------------
             # RECORDS GLOBAUX
@@ -746,8 +752,7 @@ class GameMixin:
                 irc.queueMsg(ircmsgs.privmsg(channel,
                     f"⚡ Record de vitesse : {best_speed_user} — {best_speed:.2f} sec"))
 
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
             # ------------------------------------------------------------------
             # RECORDS HEBDOMADAIRES
@@ -786,39 +791,22 @@ class GameMixin:
                 irc,
                 channel,
                 "game_end",
-                final_ranking=json.dumps(classement),
-                top_global=json.dumps(top_global),
-                records_global=json.dumps({
-                    "best_total": best_total,
-                    "best_fc": best_fc,
-                    "best_rounds": best_rounds,
-                    "best_speed": best_speed,
-                    "best_speed_user": best_speed_user
-                }),
-                records_weekly=json.dumps({
-                    "best_score": ws,
-                    "best_full_combos": wfc,
-                    "best_speed": wsp,
-                    "best_speed_user": wsp_user
-                })
+                final_ranking=json.dumps(classement[:10]),
             )
 
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
-            # Message final
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "🎮 Vous pouvez changer le mode de jeu en  tapant !jeu <mode> (par exemple !jeu facile)."))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "🎮 Retrouver la liste des modes disponibles en tapant !jeu liste"))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "✏️ Vous avez une suggestion ? Tapez !suggestion <message> (par exemple !suggestion ajouter une nouvelle catégorie fleur)."))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "🐞 Signaler un bug ? Tapez !bug <message>"))
+            self._chan_say(irc, channel,
+                "🎮 Vous pouvez changer le mode de jeu en  tapant !jeu <mode> (par exemple !jeu facile).")
+            self._chan_say(irc, channel,
+                "🎮 Retrouver la liste des modes disponibles en tapant !jeu liste")
+            self._chan_say(irc, channel,
+                "✏️ Vous avez une suggestion ? Tapez !suggestion <message> (par exemple !suggestion ajouter une nouvelle catégorie fleur).")
+            self._chan_say(irc, channel,
+                "🐞 Signaler un bug ? Tapez !bug <message>")
             irc.queueMsg(ircmsgs.privmsg(channel,
                 "🎉 Merci d'avoir joué au Petit Bac sur EntreNous.chat | Tapez !jouer pour recommencer."))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
                 
             # Mise à jour des scores cumulés
             for user, pts in partie_scores.items():
@@ -880,12 +868,10 @@ class GameMixin:
         # Partie déjà en cours
         if channel in self.active_games:
             game = self.active_games[channel]
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                f"{nick}: Une partie est déjà en cours !"))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                f"{nick}: 🎲 Lettre actuelle : {game['letter']}"))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                f"{nick}: 📚 Catégories : {', '.join(game['categories'])}"))
+            self._send_state_sync(irc, channel)
+            irc.queueMsg(ircmsgs.notice(nick,
+                f"Une partie est déjà en cours — 🎲 {game.get('letter', '?')} | "
+                f"📚 {', '.join(game.get('categories') or [])}"))
             return
 
         # Nouveau comportement :
@@ -1218,12 +1204,12 @@ class GameMixin:
         else:
             phrase = "🔥 FULL COMBO ! Toutes les catégories validées !"
 
-        irc.queueMsg(ircmsgs.privmsg(channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+        self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         irc.queueMsg(ircmsgs.privmsg(channel, f"{phrase}"))
         irc.queueMsg(ircmsgs.privmsg(channel, f"🎯 Bravo {nick.upper()} !"))
         irc.queueMsg(ircmsgs.privmsg(channel, "💥 Bonus +1 point attribué !"))
         irc.queueMsg(ircmsgs.privmsg(channel, "🏁 Fin immédiate de la manche !"))
-        irc.queueMsg(ircmsgs.privmsg(channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+        self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
         # Bonus
         self.scoreboard[nick_key] = self.scoreboard.get(nick_key, 0) + 1

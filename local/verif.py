@@ -55,7 +55,52 @@ class VerifMixin:
             return
 
         irc.queueMsg(msg)
-            
+
+    def _is_quiet(self, channel, network=None):
+        return bool(self.registryValue('quietChannel', channel, network))
+
+    def _chan_say(self, irc, channel, text, essential=False):
+        """PRIVMSG salon. Si quietChannel, n'envoie que les messages essentiels."""
+        if essential or not self._is_quiet(channel):
+            irc.queueMsg(ircmsgs.privmsg(channel, text))
+
+    def _seconds_left(self, game):
+        start = game.get("round_start_time") or 0
+        duration = (game.get("config") or {}).get("duration") or 0
+        if not start or not duration:
+            return 0
+        return max(0, int(duration - (time.time() - start)))
+
+    def _send_state_sync(self, irc, channel):
+        game = self.active_games.get(channel)
+        if not game:
+            return
+        cfg = game.get("config") or {}
+        self._send_event(
+            irc,
+            channel,
+            "state_sync",
+            round=game.get("round", 0),
+            letter=game.get("letter") or "",
+            categories=",".join(game.get("categories") or []),
+            seconds_left=self._seconds_left(game),
+            duration=cfg.get("duration", 0),
+            max_rounds=cfg.get("max_rounds", 0),
+            paused="1" if game.get("paused") else "0",
+        )
+
+    def _word_ok(self, irc, channel, nick, word, category, points):
+        self._send_event(
+            irc, channel, "word_ok",
+            nick=nick, word=word, category=category, points=points,
+        )
+
+    def _word_ko(self, irc, channel, nick, word, reason, category=""):
+        payload = {"nick": nick, "word": word, "reason": reason}
+        if category:
+            payload["category"] = category
+        self._send_event(irc, channel, "word_ko", **payload)
+
     def verif_list(self, irc, msg, args):
         channel = msg.args[0]
 

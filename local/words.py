@@ -394,6 +394,10 @@ class WordsMixin:
             found = summary is not None
 
         if not found:
+            self._send_event(
+                irc, channel, "verify_ko",
+                nick=nick, word=mot, category=cat, reason="not_found",
+            )
             irc.queueMsg(ircmsgs.privmsg(channel,
                 f"❌ Le mot « {mot} » n'à pas été trouvé dans notre dictionnaire interne ni sur Wikipédia."))
             irc.queueMsg(ircmsgs.privmsg(channel,
@@ -408,6 +412,10 @@ class WordsMixin:
 
         if existing_cats:
             cats_str = ", ".join(existing_cats)
+            self._send_event(
+                irc, channel, "verify_ok",
+                nick=nick, word=mot, category=existing_cats[0],
+            )
             irc.queueMsg(ircmsgs.notice(nick,
                 f"ℹ️ Le mot « {mot} » existe déjà dans la/les catégorie(s) : {cats_str}."))
             irc.queueMsg(ircmsgs.notice(nick,
@@ -437,6 +445,11 @@ class WordsMixin:
         }
 
         self._save_pending_verifications()
+
+        self._send_event(
+            irc, channel, "verify_pending",
+            nick=nick, word=mot, category=cat, id=new_id,
+        )
 
         msg_extra = " (les <> entourant la catégorie ne sont pas nécessaires)" if used_brackets else ""
         irc.queueMsg(ircmsgs.privmsg(channel,
