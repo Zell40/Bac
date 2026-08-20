@@ -82,11 +82,22 @@ class VerifMixin:
             irc.queueMsg(ircmsgs.privmsg(channel, text))
 
     def _seconds_left(self, game):
+        if game.get("paused"):
+            return max(0, int(game.get("time_left") or 0))
         start = game.get("round_start_time") or 0
         duration = (game.get("config") or {}).get("duration") or 0
         if not start or not duration:
             return 0
         return max(0, int(duration - (time.time() - start)))
+
+    def _game_ui_phase(self, game):
+        if not game:
+            return "idle"
+        if game.get("paused"):
+            return "paused"
+        if game.get("round_active"):
+            return "playing"
+        return "starting"
 
     def _send_state_sync(self, irc, channel):
         game = self.active_games.get(channel)
@@ -97,6 +108,7 @@ class VerifMixin:
             irc,
             channel,
             "state_sync",
+            phase=self._game_ui_phase(game),
             round=game.get("round", 0),
             letter=game.get("letter") or "",
             categories=",".join(game.get("categories") or []),

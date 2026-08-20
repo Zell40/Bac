@@ -405,6 +405,11 @@ class VoteMixin:
 
         irc.queueMsg(ircmsgs.privmsg(channel,
             "Votez : !oui ou !non (30 secondes)"))
+        self._send_event(
+            irc, channel, "vote_start",
+            kind="mode", mode=mode, seconds=30,
+            text="Passer en mode %s ?" % mode.upper(),
+        )
 
         t = threading.Timer(30, lambda: self._safe(irc, lambda: self._finalize_mode_vote(irc, channel)))
         self.mode_vote[channel]["timer"] = t
@@ -545,6 +550,11 @@ class VoteMixin:
             t = threading.Timer(30, lambda: self._safe(irc, lambda: self._restart_vote_timeout(irc, channel)))
             self.restart_vote[channel]["timer"] = t
             t.start()
+            self._send_event(
+                irc, channel, "vote_start",
+                kind="restart", seconds=30,
+                text="Continuer la partie actuelle ?",
+            )
 
             del self.mode_vote[channel]
             return
@@ -569,6 +579,7 @@ class VoteMixin:
                 game["time_left"] = duration
 
         # Reprise en douceur (compte à rebours, timers, etc.)
+        self._send_event(irc, channel, "vote_end", kind="mode")
         self._do_resume(irc, channel)
 
         del self.mode_vote[channel]
@@ -613,6 +624,7 @@ class VoteMixin:
                 del self.pending_mode_change[channel]
             self._startGame(irc, channel, starter=starter, show_rules=False)
 
+        self._send_event(irc, channel, "vote_end", kind="restart")
         del self.restart_vote[channel]
 
     def _restart_vote_timeout(self, irc, channel):
@@ -622,6 +634,7 @@ class VoteMixin:
         irc.queueMsg(ircmsgs.privmsg(channel,
             "⏳ Temps écoulé : la partie actuelle continue."))
 
+        self._send_event(irc, channel, "vote_end", kind="restart")
         self._do_resume(irc, channel)
 
         del self.restart_vote[channel]

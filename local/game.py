@@ -53,36 +53,32 @@ class GameMixin:
     # ----------------------------------------------------------------------
     # Règles du jeu
     # ----------------------------------------------------------------------
+    def _rules_lines(self):
+        """Même texte que l’intro de partie (notices joueur)."""
+        return [
+            "📘 \x0312\x02\x1FRègles du Petit Bac\x0F",
+            "• Une lettre est tirée au sort.",
+            "• Trouvez un mot commençant par cette lettre.",
+            "• Le mot doit appartenir aux catégories affichées.",
+            "• \x0303\x021 seul mot par catégorie\x0F, \x0303\x021 seul mot par ligne\x0F.",
+            "• \x0303\x02+1 point\x0F mot simple, \x0303\x02+2 points\x0F mot difficile.",
+            "• \x0303\x02Bonus\x0F : \x0303\x02+1 point\x0F si toutes les catégories sont remplies.",
+            "• La manche s’arrête quand le temps est écoulé.",
+            "• Les scores s’additionnent.",
+            " ",
+            "🎮 \x0312\x02\x1FModes de jeu\x0F",
+            "• Voir les modes de jeu disponibles : \x0303\x02!jeu liste\x0F",
+            "• Changer de mode de jeu : \x0303\x02!jeu <mode>\x0F (ex : \x0303\x02!jeu facile\x0F)",
+            "• Voter : \x0303\x02!oui\x0F / \x0303\x02!non\x0F",
+            " ",
+            "🛈 \x0312\x02\x1FAide\x0F",
+            "Tapez \x0303\x02!aide\x0F pour voir les commandes disponibles.",
+            "Bonne chance à tous ! 🎉",
+        ]
+
     def _send_rules_notice(self, irc, nick):
-        modes = self.modes
-
-        irc.queueMsg(ircmsgs.notice(nick, "📘 \x0312\x02\x1FRègles du PetitBac\x0F"))
-        irc.queueMsg(ircmsgs.notice(nick, "• Une lettre est tirée au sort."))
-        irc.queueMsg(ircmsgs.notice(nick, "• Trouvez un mot commençant par cette lettre."))
-        irc.queueMsg(ircmsgs.notice(nick, "• Le mot doit appartenir aux catégories affichées."))
-
-        irc.queueMsg(ircmsgs.notice(nick,
-            "• \x0303\x021 seul mot par catégorie\x0F, \x0303\x021 seul mot par ligne\x0F."))
-        irc.queueMsg(ircmsgs.notice(nick,
-            "• \x0303\x02+1 point\x0F mot simple, \x0303\x02+2 points\x0F mot difficile."))
-        irc.queueMsg(ircmsgs.notice(nick,
-            "• \x0303\x02Bonus\x0F : \x0303\x02+1 point\x0F si toutes les catégories sont remplies."))
-
-        irc.queueMsg(ircmsgs.notice(nick, "• La manche s’arrête quand le temps est écoulé."))
-        irc.queueMsg(ircmsgs.notice(nick, " "))
-
-        irc.queueMsg(ircmsgs.notice(nick, "🎮 \x0312\x02\x1FModes de jeu\x0F"))
-        irc.queueMsg(ircmsgs.notice(nick,
-            "• Voir les modes disponibles : \x0303\x02!jeu liste\x0F"))
-        irc.queueMsg(ircmsgs.notice(nick,
-            "• Changer de mode : \x0303\x02!jeu <mode>\x0F (ex : \x0303\x02!jeu facile\x0F)"))
-        irc.queueMsg(ircmsgs.notice(nick, "• Voter : \x0303\x02!oui\x0F / \x0303\x02!non\x0F"))
-        irc.queueMsg(ircmsgs.notice(nick, " "))
-
-        irc.queueMsg(ircmsgs.notice(nick, "🛈 \x0312\x02\x1FAide\x0F"))
-        irc.queueMsg(ircmsgs.notice(nick,
-            "Tapez \x0303\x02!aide\x0F pour voir les commandes disponibles"))
-        irc.queueMsg(ircmsgs.notice(nick, "Bonne partie ! 🎉"))
+        for line in self._rules_lines():
+            irc.queueMsg(ircmsgs.notice(nick, line))
 
     # ----------------------------------------------------------------------
     # Nouvelle partie
@@ -370,39 +366,18 @@ class GameMixin:
                 )
                 game["start_timers"].append(event_name)
 
-            # --- RÈGLES COMPACTES & STYLISÉES ---
-            rules_lines = [
-            "📘 \x0312\x02\x1FRègles du Petit Bac\x0F",
-            "• Une lettre est tirée au sort.",
-            "• Trouvez un mot commençant par cette lettre.",
-            "• Le mot doit appartenir aux catégories affichées.",
-
-            "• \x0303\x021 seul mot par catégorie\x0F, \x0303\x021 seul mot par ligne\x0F.",
-            "• \x0303\x02+1 point\x0F mot simple, \x0303\x02+2 points\x0F mot difficile.",
-            "• \x0303\x02Bonus\x0F : \x0303\x02+1 point\x0F si toutes les catégories sont remplies.",
-
-            "• La manche s’arrête quand le temps est écoulé.",
-            "• Les scores s’additionnent.",
-            " ",
-
-            "🎮 \x0312\x02\x1FModes de jeu\x0F",
-            "• Voir les modes de jeu disponibles : \x0303\x02!jeu liste\x0F",
-            "• Changer de mode de jeu : \x0303\x02!jeu <mode>\x0F (ex : \x0303\x02!jeu facile\x0F)",
-            "• Voter : \x0303\x02!oui\x0F / \x0303\x02!non\x0F",
-            " ",
-
-            "🛈 \x0312\x02\x1FAide\x0F",
-            "Tapez \x0303\x02!aide\x0F pour voir les commandes disponibles.",
-            "Bonne chance à tous ! 🎉",
-            " "
-            ]
+            # --- RÈGLES : notice au lanceur + annonce salon (clients IRC classiques) ---
+            rules_lines = self._rules_lines() + [" "]
             
             # Envoi progressif des règles
             for i, line in enumerate(rules_lines):
                 delay += 0.05
                 event_name = f"start_{channel}_rule_{i}"
                 schedule.addEvent(
-                    lambda l=line, n=player: irc.queueMsg(ircmsgs.notice(n, l)),
+                    lambda l=line, n=player: (
+                        self._chan_say(irc, channel, l, essential=True),
+                        irc.queueMsg(ircmsgs.notice(n, l)) if n else None,
+                    ),
                     time.time() + delay,
                     name=event_name
                 )
@@ -596,9 +571,8 @@ class GameMixin:
             if g.get("stopped") or g.get("paused") or not g.get("round_active"):
                 return
             self._send_event(irc, channel, "round_countdown", seconds=seconds_left)
-            if not self._is_quiet(channel):
-                irc.queueMsg(ircmsgs.privmsg(
-                    channel, f"⏳ Il reste {seconds_left} secondes..."))
+            irc.queueMsg(ircmsgs.privmsg(
+                channel, f"⏳ Il reste {seconds_left} secondes..."))
 
         for t in (20, 10, 5):
             if duration > t:
@@ -845,7 +819,7 @@ class GameMixin:
     # ----------------------------------------------------------------------  
     @wrap([optional('text')])
     def jouer(self, irc, msg, args, dummy):
-        """Démarre une nouvelle partie du Petit Bac. Utilisation : !jouer [regles]"""
+        """Démarre une nouvelle partie du Petit Bac. Utilisation : !jouer [noregles]"""
         channel = msg.args[0]
         nick = msg.nick
 
@@ -867,10 +841,9 @@ class GameMixin:
                 f"📚 {', '.join(game.get('categories') or [])}"))
             return
 
-        # Nouveau comportement :
-        # - par défaut : PAS de règles
-        # - si l'utilisateur écrit "regles" → afficher les règles
-        show_rules = (dummy and dummy.lower() in ("regles", "règles"))
+        # Par défaut : annoncer les règles (clients IRC). !jouer noregles pour les sauter.
+        arg = (dummy or "").lower().strip()
+        show_rules = arg not in ("noregles", "no-regles", "sansregles", "sansrègles")
 
         # Démarrer la partie
         self._startGame(irc, channel, nick, show_rules=show_rules)
@@ -1379,8 +1352,8 @@ class GameMixin:
                 pass
         game["fullcombo_timer"] = None
 
-        # Calcul du temps restant
-        duration = conf.supybot.plugins.PetitBac.roundDuration()
+        # Calcul du temps restant (durée de CETTE partie, pas la conf globale)
+        duration = (game.get("config") or {}).get("duration") or conf.supybot.plugins.PetitBac.roundDuration()
         start_time = game.get("round_start_time")
 
         if start_time:
@@ -1394,6 +1367,10 @@ class GameMixin:
         # Marquer la pause
         game["paused"] = True
         game["paused_by"] = paused_by
+        self._send_event(
+            irc, channel, "game_pause",
+            seconds_left=remaining, by=paused_by,
+        )
 
         # Timer d’expiration
         def auto_stop():
@@ -1489,8 +1466,12 @@ class GameMixin:
             delay += 1
 
         ev_name = f"resume_go_{channel}"
+        left = time_left
         schedule.addEvent(
-            lambda: irc.queueMsg(ircmsgs.privmsg(channel, "🚀 GO !")),
+            lambda s=left: (
+                self._send_event(irc, channel, "game_resume", seconds_left=s),
+                irc.queueMsg(ircmsgs.privmsg(channel, "🚀 GO !")),
+            ),
             time.time() + delay,
             name=ev_name
         )

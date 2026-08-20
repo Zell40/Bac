@@ -146,8 +146,9 @@ conf.registerChannelValue(
     'quietChannel',
     registry.Boolean(
         True,
-        """Réduit les PRIVMSG redondants (séparateurs, rappels, décomptes texte).
-        Les TAGMSG Orbit et les messages essentiels (lettre, mots, scores) restent."""
+        """Réduit les PRIVMSG redondants (séparateurs, rappels).
+        Les décomptes de manche (20/10/5 s), les TAGMSG Orbit et les
+        messages essentiels (lettre, mots, scores) restent."""
     )
 )
 

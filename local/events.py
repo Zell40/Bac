@@ -168,6 +168,10 @@ class EventsMixin:
         if not self._is_enabled(channel):
             return
 
+        play_key = text.lower().strip()
+        if play_key and not self._orbit_cmd_once(nick, "play", play_key):
+            return
+
         if channel not in self.active_games:
             return
 
@@ -510,6 +514,7 @@ class EventsMixin:
 
         irc.queueMsg(ircmsgs.notice(nick, "🎮 Commandes joueurs :"))
         irc.queueMsg(ircmsgs.notice(nick, "  • !jouer [noregles] — Démarre une nouvelle partie"))
+        irc.queueMsg(ircmsgs.notice(nick, "  • !regles — Affiche les règles du jeu (comme en début de partie)"))
         irc.queueMsg(ircmsgs.notice(nick, "  • !jeu <facile|moyen|difficile|<perso>|creer|del|liste> — Modifier le comportement du jeu"))
         irc.queueMsg(ircmsgs.notice(nick, "  • !oui / !non — Voter oui ( !oui ) ou non ( !non ) lors d'un vote"))
         irc.queueMsg(ircmsgs.notice(nick, "  • !scores — Affiche les scores cumulés"))
@@ -596,6 +601,18 @@ class EventsMixin:
 
         irc.queueMsg(ircmsgs.notice(nick, "📩 Cette aide vous a été envoyée en privé."))
 
+    #--------------------------------------------------------------------------
+    # Commande !regles
+    #--------------------------------------------------------------------------
+    @wrap([])
+    def regles(self, irc, msg, args):
+        """Affiche les règles du Petit Bac (même texte qu’en début de partie)."""
+        channel = msg.args[0]
+        nick = msg.nick
+        if not self._is_enabled(channel):
+            return
+        self._send_rules_notice(irc, nick)
+
     # ----------------------------------------------------------------------
     # Commandes Orbit via TAGMSG IRCv3 (pas de PRIVMSG !commande dans le tchat)
     # Client : @+pb=v1;+ev=cmd;+name=<cmd>;+arg=<...> TAGMSG #salon
@@ -618,12 +635,14 @@ class EventsMixin:
         return "".join(out)
 
     def _msg_tag(self, msg, name):
-        tags = getattr(msg, "server_tags", None) or getattr(msg, "tags", None) or {}
-        if not isinstance(tags, dict):
+        tags = {}
+        for src in (getattr(msg, "server_tags", None), getattr(msg, "tags", None)):
+            if not src:
+                continue
             try:
-                tags = dict(tags)
+                tags.update(src if isinstance(src, dict) else dict(src))
             except Exception:
-                return ""
+                continue
         return self._unescape_irc_tag(self._pb_tag(tags, name))
 
     def _orbit_cmd_once(self, nick, name, arg):
@@ -685,18 +704,33 @@ class EventsMixin:
         joueurs = set()
         for game in (self.last_games or []):
             joueurs.update((game.get("scores") or {}).keys())
-        summary = "%s partie(s), %s joueur(s)" % (
-            len(self.last_games or []),
-            len(joueurs),
-        )
+        games = list(self.last_games or [])
+        summary = "%s partie(s), %s joueur(s)" % (len(games), len(joueurs))
         ranking = ""
         if self.scoreboard:
             classement = sorted(
                 self.scoreboard.items(), key=lambda x: x[1], reverse=True
             )
             ranking = self._compact_score_pairs(classement, limit=10)
-        hist_parts = []
-        for game in reversed((self.last_games or [])[-3:]):
+        hist_count = min(10, len(games))
+        if not self._send_event(
+            irc, channel, "lobby_stats",
+            summary=summary, ranking=ranking, hist_count=hist_count,
+        ):
+            self._send_event(
+                irc, channel, "lobby_stats",
+                summary=summary,
+                ranking=self._compact_score_pairs(
+                    sorted(
+                        (self.scoreboard or {}).items(),
+                        key=lambda x: x[1],
+                        reverse=True,
+                    ),
+                    limit=5,
+                ),
+                hist_count=hist_count,
+            )
+        for i, game in enumerate(reversed(games[-10:])):
             ts = str(game.get("timestamp") or "")[:16].replace(" ", "_")
             pairs = self._compact_score_pairs(
                 sorted(
@@ -704,33 +738,26 @@ class EventsMixin:
                     key=lambda x: x[1],
                     reverse=True,
                 ),
-                limit=4,
+                limit=6,
             )
-            if ts:
-                hist_parts.append("%s:%s" % (ts, pairs))
-        history = "|".join(hist_parts)
-        if self._send_event(
-            irc, channel, "lobby_stats",
-            summary=summary, ranking=ranking, history=history,
-        ):
-            return
-        if self._send_event(
-            irc, channel, "lobby_stats",
-            summary=summary, ranking=ranking,
-        ):
-            return
-        self._send_event(
-            irc, channel, "lobby_stats",
-            summary=summary,
-            ranking=self._compact_score_pairs(
-                sorted(
-                    (self.scoreboard or {}).items(),
-                    key=lambda x: x[1],
-                    reverse=True,
-                ),
-                limit=5,
-            ),
-        )
+            if not ts:
+                continue
+            if not self._send_event(
+                irc, channel, "lobby_hist",
+                i=i, ts=ts, pairs=pairs,
+            ):
+                self._send_event(
+                    irc, channel, "lobby_hist",
+                    i=i, ts=ts,
+                    pairs=self._compact_score_pairs(
+                        sorted(
+                            (game.get("scores") or {}).items(),
+                            key=lambda x: x[1],
+                            reverse=True,
+                        ),
+                        limit=3,
+                    ),
+                )
 
     def _orbit_reply_stat(self, irc, channel, target=""):
         players = (self.global_stats or {}).get("players", {})
@@ -778,17 +805,20 @@ class EventsMixin:
             key=lambda x: x[1].get("total_points", 0),
             reverse=True,
         )
-        parts = []
-        for user, st in classement[:limit]:
-            parts.append("%s:%s:%s" % (
-                user,
-                int(st.get("total_points", 0) or 0),
-                int(st.get("full_combos", 0) or 0),
-            ))
-        self._send_event(
-            irc, channel, "top_result",
-            ranking=",".join(parts), limit=limit,
-        )
+        for n in (limit, 5, 3, 1):
+            parts = []
+            for user, st in classement[:n]:
+                parts.append("%s:%s:%s" % (
+                    user,
+                    int(st.get("total_points", 0) or 0),
+                    int(st.get("full_combos", 0) or 0),
+                ))
+            if self._send_event(
+                irc, channel, "top_result",
+                ranking=",".join(parts), limit=n, ok="1",
+            ):
+                return
+        self._send_event(irc, channel, "top_result", ranking="", limit=0, ok="0")
 
     def _orbit_reply_info(self, irc, channel, word):
         raw = (word or "").strip()
@@ -846,7 +876,7 @@ class EventsMixin:
         if name == "top":
             self._orbit_reply_top(irc, channel, arg or 5)
             return
-        if name in ("jouer", "pause", "reprendre", "stop", "oui", "non", "verifier"):
+        if name in ("jouer", "pause", "reprendre", "stop", "oui", "non", "verifier", "regles", "aide"):
             tokens = [name] + ([arg] if name == "verifier" and arg else (
                 [p for p in re.split(r"\s+", arg) if p] if arg else []
             ))
@@ -876,8 +906,6 @@ class EventsMixin:
             cat = self._msg_tag(msg, "+cat") or self._msg_tag(msg, "+category")
             if not word:
                 return False
-            if not self._orbit_cmd_once(msg.nick, "play", word + "|" + cat):
-                return True
             try:
                 self._handle_play_word(irc, msg, word, preferred_cat=cat)
             except Exception as e:
@@ -907,8 +935,10 @@ class EventsMixin:
             name = "jouer"
             if not arg:
                 a = (self._msg_tag(msg, "+regles") or "").lower()
-                if a in ("1", "true", "regles", "règles"):
-                    arg = "regles"
+                if a in ("0", "false", "noregles", "no-regles"):
+                    arg = "noregles"
+        if name in ("règles", "rules"):
+            name = "regles"
         if not name:
             return False
         if not self._orbit_cmd_once(msg.nick, name, arg):
