@@ -320,6 +320,7 @@ class GameMixin:
         # Nouveau jeu
         game = self._newGame(channel)
         game["round"] = 1
+        game["mode"] = mode_name
         
         # Enregistrement des mots pendant la partie
         game["used_words_game"] = set()
@@ -678,23 +679,15 @@ class GameMixin:
         # ------------------------------------------------------------------
         if game["round"] > max_rounds:
         
-            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "🏆  FIN DE LA PARTIE !  🏆"))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                f"🎯 Vous avez atteint les {max_rounds} manches."))
-            irc.queueMsg(ircmsgs.privmsg(channel,
-                "📊 Voici le classement final :"))
-            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-
-            # Classement final
             partie_scores = dict(self.scoreboard)
             classement = sorted(partie_scores.items(), key=lambda x: x[1], reverse=True)
-
-            for user, pts in classement:
-                irc.queueMsg(ircmsgs.privmsg(channel,
-                    f"  • {user} : {pts} point(s)"))
-            self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            rank_txt = " · ".join(
+                f"{i}. {user} {pts} pts" for i, (user, pts) in enumerate(classement[:8], 1)
+            ) or "aucun score"
+            irc.queueMsg(ircmsgs.privmsg(
+                channel,
+                f"🏆 Partie terminée — {max_rounds} manches — classement : {rank_txt}"
+            ))
 
             # ------------------------------------------------------------------
             # TOP JOUEURS GLOBAUX
@@ -791,7 +784,7 @@ class GameMixin:
                 irc,
                 channel,
                 "game_end",
-                final_ranking=json.dumps(classement[:10]),
+                ranking=self._compact_score_pairs(classement, 10),
             )
 
             self._chan_say(irc, channel, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -843,7 +836,7 @@ class GameMixin:
             channel,
             "round_end",
             round=game["round"] - 1,
-            round_scores=json.dumps(round_scores),
+            round_scores=self._compact_score_pairs(round_scores.items(), 12),
         )
         self._startRound(irc, channel)
 

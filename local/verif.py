@@ -56,6 +56,20 @@ class VerifMixin:
 
         irc.queueMsg(msg)
 
+    def _compact_score_pairs(self, pairs, limit=10):
+        if isinstance(pairs, dict):
+            pairs = pairs.items()
+        parts = []
+        for item in list(pairs)[:limit]:
+            if isinstance(item, (list, tuple)) and len(item) >= 2:
+                parts.append("%s:%s" % (item[0], int(item[1] or 0)))
+            elif isinstance(item, dict):
+                nick = item.get("nick") or item.get("user") or ""
+                pts = item.get("pts") or item.get("points") or 0
+                if nick:
+                    parts.append("%s:%s" % (nick, int(pts)))
+        return ",".join(parts)
+
     def _is_quiet(self, channel, network=None):
         return bool(self.registryValue('quietChannel', channel, network))
 
@@ -87,6 +101,7 @@ class VerifMixin:
             duration=cfg.get("duration", 0),
             max_rounds=cfg.get("max_rounds", 0),
             paused="1" if game.get("paused") else "0",
+            mode=game.get("mode") or self.current_mode.get(channel, ""),
         )
 
     def _word_ok(self, irc, channel, nick, word, category, points):

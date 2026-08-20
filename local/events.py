@@ -252,44 +252,52 @@ class EventsMixin:
 
         # ----------------------------------------------------------------------
         # 🔥 VALIDATION OFFICIELLE (unique, complète)
+        # Un mot peut appartenir à plusieurs catégories (ex. zara → marque + prenom).
+        # On croise TOUTES les catégories du mot avec celles de la manche,
+        # au lieu de refuser dès la première catégorie hors jeu.
         # ----------------------------------------------------------------------
-        for cat in self.data["categories"]:
-            if mot in self.data["categories"][cat]["mots"]:
+        matching_cats = [
+            cat for cat, content in self.data["categories"].items()
+            if mot in content.get("mots", [])
+        ]
+        active_matches = [c for c in matching_cats if c in game["categories"]]
 
-                # Catégorie hors manche → refus immédiat
-                if cat not in game["categories"]:
-                    self._word_ko(irc, channel, nick, mot, "bad_cat", cat)
-                    irc.queueMsg(ircmsgs.privmsg(channel,
-                        f"{nick}: ❌ Le mot « {text} » n'est pas valide pour les catégories du tour."))
-                    return
+        if matching_cats and not active_matches:
+            self._word_ko(irc, channel, nick, mot, "bad_cat")
+            irc.queueMsg(ircmsgs.privmsg(channel,
+                f"{nick}: ❌ Le mot « {text} » n'est pas valide pour les catégories du tour."))
+            return
 
-                # Catégorie déjà validée
-                if cat in game["answers"].get(nick_key, {}):
-                    irc.queueMsg(ircmsgs.privmsg(channel,
-                        f"{nick}: ⚠️ Tu as déjà validé la catégorie {cat} dans cette manche."))
-                    return
-
-                # Points
-                if self._is_difficult_word(mot):
-                    points = 2
-                    msg_bonus = f"💎 Mot difficile « {text} » accepté! (+2 points)"
-                else:
-                    points = 1
-                    msg_bonus = f"✔️ Mot « {text} » accepté (+1 point)"
-
-                # Enregistrement
-                self.scoreboard[nick_key] = self.scoreboard.get(nick_key, 0) + points
-                game["answers"].setdefault(nick_key, {})[cat] = mot
-                game["used_words"].add(mot)
-                self.word_usage[mot] = self.word_usage.get(mot, 0) + 1
-
+        if active_matches:
+            answers = game["answers"].get(nick_key, {})
+            unfilled = [c for c in active_matches if c not in answers]
+            if not unfilled:
                 irc.queueMsg(ircmsgs.privmsg(channel,
-                    f"{nick}: {msg_bonus} — Catégorie {cat}"))
-
-                self._word_ok(irc, channel, nick, mot, cat, points)
-                self._update_global_stats(nick_key, words_validated=1, total_points=points)
-                self._check_full_combo(irc, channel, nick)
+                    f"{nick}: ⚠️ Tu as déjà validé la catégorie {active_matches[0]} dans cette manche."))
                 return
+            cat = unfilled[0]
+
+            # Points
+            if self._is_difficult_word(mot):
+                points = 2
+                msg_bonus = f"💎 Mot difficile « {text} » accepté! (+2 points)"
+            else:
+                points = 1
+                msg_bonus = f"✔️ Mot « {text} » accepté (+1 point)"
+
+            # Enregistrement
+            self.scoreboard[nick_key] = self.scoreboard.get(nick_key, 0) + points
+            game["answers"].setdefault(nick_key, {})[cat] = mot
+            game["used_words"].add(mot)
+            self.word_usage[mot] = self.word_usage.get(mot, 0) + 1
+
+            irc.queueMsg(ircmsgs.privmsg(channel,
+                f"{nick}: {msg_bonus} — Catégorie {cat}"))
+
+            self._word_ok(irc, channel, nick, mot, cat, points)
+            self._update_global_stats(nick_key, words_validated=1, total_points=points)
+            self._check_full_combo(irc, channel, nick)
+            return
 
         # ----------------------------------------------------------------------
         # MULTICAT
@@ -447,6 +455,8 @@ class EventsMixin:
         """Affiche l'aide du jeu Petit Bac."""
         channel = msg.args[0]
         nick = msg.nick
+        if not self._is_enabled(channel):
+            return
 
         is_op = irc.state.channels[channel].isOp(nick)
 
