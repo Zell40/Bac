@@ -126,10 +126,27 @@ class EventsMixin:
                 time.time() + 3
             )
 
+    def _pb_tag(self, tags, *names):
+        """Lit un tag IRCv3, avec ou sans préfixe +."""
+        if not tags:
+            return ""
+        for name in names:
+            for key in (name, "+" + str(name).lstrip("+"), str(name).lstrip("+")):
+                val = tags.get(key)
+                if val not in (None, ""):
+                    return str(val)
+        return ""
+
     def doPrivmsg(self, irc, msg):
+        if not msg.args or len(msg.args) < 2:
+            return
+        text = self._clean_irc_formatting(msg.args[1].strip())
+        if text.startswith("!") or text.startswith("@"):
+            return
+        self._handle_play_word(irc, msg, text)
+
+    def _handle_play_word(self, irc, msg, text, preferred_cat=None):
         channel = msg.args[0]
-        text = msg.args[1].strip()
-        text = self._clean_irc_formatting(text)
         nick = msg.nick
         nick_key = nick.lower()
 
@@ -271,11 +288,24 @@ class EventsMixin:
         if active_matches:
             answers = game["answers"].get(nick_key, {})
             unfilled = [c for c in active_matches if c not in answers]
-            if not unfilled:
+            preferred = self._norm_cat(preferred_cat) if preferred_cat else ""
+            if preferred and preferred in game["categories"] and preferred not in active_matches:
+                self._word_ko(irc, channel, nick, mot, "bad_cat", preferred)
                 irc.queueMsg(ircmsgs.privmsg(channel,
-                    f"{nick}: ⚠️ Tu as déjà validé la catégorie {active_matches[0]} dans cette manche."))
+                    f"{nick}: ❌ Le mot « {text} » n'est pas valide pour la catégorie {preferred}."))
                 return
-            cat = unfilled[0]
+            if preferred and preferred in active_matches:
+                if preferred in answers:
+                    irc.queueMsg(ircmsgs.privmsg(channel,
+                        f"{nick}: ⚠️ Tu as déjà validé la catégorie {preferred} dans cette manche."))
+                    return
+                cat = preferred
+            else:
+                if not unfilled:
+                    irc.queueMsg(ircmsgs.privmsg(channel,
+                        f"{nick}: ⚠️ Tu as déjà validé la catégorie {active_matches[0]} dans cette manche."))
+                    return
+                cat = unfilled[0]
 
             # Points
             if self._is_difficult_word(mot):
@@ -551,8 +581,332 @@ class EventsMixin:
             irc.queueMsg(ircmsgs.notice(nick, " "))
 
         irc.queueMsg(ircmsgs.notice(nick, "📩 Cette aide vous a été envoyée en privé."))
-        
+
+    # ----------------------------------------------------------------------
+    # Commandes Orbit via TAGMSG IRCv3 (pas de PRIVMSG !commande dans le tchat)
+    # Client : @+pb=v1;+ev=cmd;+name=<cmd>;+arg=<...> TAGMSG #salon
+    # ----------------------------------------------------------------------
+    def _unescape_irc_tag(self, value):
+        if not value:
+            return ""
+        s = str(value)
+        out = []
+        i = 0
+        while i < len(s):
+            if s[i] == "\\" and i + 1 < len(s):
+                nxt = s[i + 1]
+                mapping = {":": ";", "s": " ", "r": "\r", "n": "\n", "\\": "\\"}
+                out.append(mapping.get(nxt, nxt))
+                i += 2
+            else:
+                out.append(s[i])
+                i += 1
+        return "".join(out)
+
+    def _msg_tag(self, msg, name):
+        tags = getattr(msg, "server_tags", None) or getattr(msg, "tags", None) or {}
+        if not isinstance(tags, dict):
+            return ""
+        return self._unescape_irc_tag(self._pb_tag(tags, name))
+
+    def _orbit_cmd_once(self, nick, name, arg):
+        if not hasattr(self, "_orbit_cmd_seen"):
+            self._orbit_cmd_seen = {}
+        key = (str(nick or "").lower(), str(name or ""), str(arg or ""))
+        now = time.time()
+        last = self._orbit_cmd_seen.get(key, 0)
+        if now - last < 0.45:
+            return False
+        self._orbit_cmd_seen[key] = now
+        if len(self._orbit_cmd_seen) > 80:
+            cutoff = now - 10
+            self._orbit_cmd_seen = {
+                k: v for k, v in self._orbit_cmd_seen.items() if v >= cutoff
+            }
+        return True
+
+    def _orbit_proxy(self, irc, msg, channel, tokens):
+        text = "!" + " ".join(str(t) for t in tokens)
+        fake = ircmsgs.IrcMsg(
+            prefix=msg.prefix,
+            command="PRIVMSG",
+            args=(channel, text),
+            server_tags=getattr(msg, "server_tags", None) or {},
+        )
+        try:
+            self.Proxy(irc, fake, tokens)
+        except Exception as e:
+            log.warning("PetitBac: orbit cmd %s failed: %s", tokens, e)
+            self._send_event(
+                irc, channel, "cmd_err",
+                name=tokens[0] if tokens else "",
+                text=str(e)[:120],
+            )
+
+    def _orbit_reply_modes_list(self, irc, channel):
+        active = self.current_mode.get(channel, "facile")
+        locked_rows = []
+        custom_rows = []
+        for key, cfg in (self.modes or {}).items():
+            row = "%s:%s:%s:%s:%s:%s" % (
+                key,
+                cfg.get("categories", 0),
+                cfg.get("duration", 0),
+                cfg.get("maxrounds", 0),
+                "1" if cfg.get("locked") else "0",
+                "1" if key == active else "0",
+            )
+            if cfg.get("locked"):
+                locked_rows.append(row)
+            else:
+                custom_rows.append((cfg.get("times_used", 0), row))
+        custom_rows.sort(key=lambda x: x[0], reverse=True)
+        modes = ",".join(locked_rows + [r for _, r in custom_rows[:8]])
+        self._send_event(irc, channel, "modes_list", modes=modes, active=active)
+
+    def _orbit_reply_scores(self, irc, channel):
+        joueurs = set()
+        for game in (self.last_games or []):
+            joueurs.update((game.get("scores") or {}).keys())
+        summary = "%s partie(s), %s joueur(s)" % (
+            len(self.last_games or []),
+            len(joueurs),
+        )
+        ranking = ""
+        if self.scoreboard:
+            classement = sorted(
+                self.scoreboard.items(), key=lambda x: x[1], reverse=True
+            )
+            ranking = self._compact_score_pairs(classement, limit=10)
+        hist_parts = []
+        for game in reversed((self.last_games or [])[-3:]):
+            ts = str(game.get("timestamp") or "")[:16].replace(" ", "_")
+            pairs = self._compact_score_pairs(
+                sorted(
+                    (game.get("scores") or {}).items(),
+                    key=lambda x: x[1],
+                    reverse=True,
+                ),
+                limit=4,
+            )
+            if ts:
+                hist_parts.append("%s:%s" % (ts, pairs))
+        history = "|".join(hist_parts)
+        if self._send_event(
+            irc, channel, "lobby_stats",
+            summary=summary, ranking=ranking, history=history,
+        ):
+            return
+        if self._send_event(
+            irc, channel, "lobby_stats",
+            summary=summary, ranking=ranking,
+        ):
+            return
+        self._send_event(
+            irc, channel, "lobby_stats",
+            summary=summary,
+            ranking=self._compact_score_pairs(
+                sorted(
+                    (self.scoreboard or {}).items(),
+                    key=lambda x: x[1],
+                    reverse=True,
+                ),
+                limit=5,
+            ),
+        )
+
+    def _orbit_reply_stat(self, irc, channel, target=""):
+        players = (self.global_stats or {}).get("players", {})
+        if not target:
+            gs = (self.global_stats or {}).get("global", {})
+            self._send_event(
+                irc, channel, "stat_result",
+                kind="global",
+                games=gs.get("games_played", 0),
+                rounds=gs.get("rounds_played", 0),
+                words=gs.get("words_validated", 0),
+                combos=gs.get("full_combos", 0),
+                pts=gs.get("total_points", 0),
+                last=str(gs.get("last_activity") or "")[:32],
+            )
+            return
+        key = target.strip().lower()
+        if key not in players:
+            self._send_event(
+                irc, channel, "stat_result",
+                kind="player", nick=target, ok="0",
+            )
+            return
+        st = players[key]
+        self._send_event(
+            irc, channel, "stat_result",
+            kind="player", nick=target, ok="1",
+            games=st.get("games_played", 0),
+            rounds=st.get("rounds_played", 0),
+            words=st.get("words_validated", 0),
+            combos=st.get("full_combos", 0),
+            pts=st.get("total_points", 0),
+            last=str(st.get("last_seen") or "")[:32],
+        )
+
+    def _orbit_reply_top(self, irc, channel, limit=5):
+        try:
+            limit = int(limit or 5)
+        except (TypeError, ValueError):
+            limit = 5
+        limit = max(1, min(10, limit))
+        players = (self.global_stats or {}).get("players", {})
+        classement = sorted(
+            players.items(),
+            key=lambda x: x[1].get("total_points", 0),
+            reverse=True,
+        )
+        parts = []
+        for user, st in classement[:limit]:
+            parts.append("%s:%s:%s" % (
+                user,
+                int(st.get("total_points", 0) or 0),
+                int(st.get("full_combos", 0) or 0),
+            ))
+        self._send_event(
+            irc, channel, "top_result",
+            ranking=",".join(parts), limit=limit,
+        )
+
+    def _orbit_reply_info(self, irc, channel, word):
+        raw = (word or "").strip()
+        mot = self._normalize_word(raw) if hasattr(self, "_normalize_word") else raw.lower()
+        if not mot:
+            self._send_event(irc, channel, "info_result", word=raw, ok="0", text="invalide")
+            return
+        description = None
+        try:
+            description = self.get_wikipedia_summary(mot)
+        except Exception:
+            description = None
+        if not description:
+            self._send_event(irc, channel, "info_result", word=mot, ok="0", text="not_found")
+            return
+        clean = description.replace("\n", " ").replace("\xa0", " ").strip()
+        if len(clean) > 300:
+            clean = clean[:297] + "..."
+        if not self._send_event(irc, channel, "info_result", word=mot, ok="1", text=clean):
+            self._send_event(
+                irc, channel, "info_result",
+                word=mot, ok="1", text=clean[:180] + "...",
+            )
+
+    def _dispatch_orbit_cmd(self, irc, msg, channel, name, arg):
+        name = (name or "").lower().strip()
+        arg = (arg or "").strip()
+        if not name:
+            return
+        if name in ("liste",):
+            self._orbit_reply_modes_list(irc, channel)
+            return
+        if name == "jeu":
+            arg_l = arg.lower().strip()
+            if not arg_l or arg_l in ("liste", "aide", "help", "?"):
+                self._orbit_reply_modes_list(irc, channel)
+                return
+            tokens = ["jeu"] + [p for p in re.split(r"\s+", arg) if p]
+            self._orbit_proxy(irc, msg, channel, tokens)
+            return
+        if name == "scores":
+            self._orbit_reply_scores(irc, channel)
+            return
+        if name in ("manche", "sync"):
+            self._send_state_sync(irc, channel)
+            if channel not in self.active_games:
+                self._send_event(irc, channel, "cmd_err", name="manche", text="idle")
+            return
+        if name == "info":
+            self._orbit_reply_info(irc, channel, arg)
+            return
+        if name == "stat":
+            self._orbit_reply_stat(irc, channel, arg)
+            return
+        if name == "top":
+            self._orbit_reply_top(irc, channel, arg or 5)
+            return
+        if name in ("jouer", "pause", "reprendre", "stop", "oui", "non", "verifier"):
+            tokens = [name] + ([arg] if name == "verifier" and arg else (
+                [p for p in re.split(r"\s+", arg) if p] if arg else []
+            ))
+            if name == "verifier" and arg:
+                tokens = ["verifier"] + [p for p in re.split(r"\s+", arg) if p]
+            self._orbit_proxy(irc, msg, channel, tokens)
+            return
+        self._send_event(irc, channel, "cmd_err", name=name, text="unknown")
+
+    def _handle_orbit_tagmsg(self, irc, msg):
+        if msg.command != "TAGMSG":
+            return False
+        if msg.nick == getattr(irc, "nick", None):
+            return False
+        if not msg.args:
+            return False
+        channel = msg.args[0]
+        if not channel or channel[0] not in "#&+!":
+            return False
+        if self._msg_tag(msg, "+pb") != "v1":
+            return False
+        if not self._is_enabled(channel):
+            return False
+        ev = self._msg_tag(msg, "+ev").lower()
+        if ev == "play":
+            word = self._msg_tag(msg, "+word")
+            cat = self._msg_tag(msg, "+cat") or self._msg_tag(msg, "+category")
+            if not word:
+                return False
+            if not self._orbit_cmd_once(msg.nick, "play", word + "|" + cat):
+                return True
+            self._handle_play_word(irc, msg, word, preferred_cat=cat)
+            return True
+        if ev != "cmd":
+            return False
+        name = (self._msg_tag(msg, "+name") or self._msg_tag(msg, "+cmd")).lower()
+        arg = self._msg_tag(msg, "+arg") or self._msg_tag(msg, "+text")
+        if name in ("verifier", "verify") and not arg:
+            cat = self._msg_tag(msg, "+cat") or self._msg_tag(msg, "+category")
+            word = self._msg_tag(msg, "+word")
+            if cat and word:
+                arg = cat + " " + word
+            name = "verifier"
+        if name == "jeu" and not arg:
+            mode = self._msg_tag(msg, "+mode")
+            cats = self._msg_tag(msg, "+cats")
+            dur = self._msg_tag(msg, "+dur") or self._msg_tag(msg, "+duration")
+            rounds = self._msg_tag(msg, "+rounds")
+            if cats or str(mode).lower() == "creer":
+                arg = "creer %s %s %s" % (cats or "5", dur or "40", rounds or "12")
+            elif mode:
+                rest = self._msg_tag(msg, "+rest")
+                arg = (mode + (" " + rest if rest else "")).strip()
+        if name in ("jouer", "start"):
+            name = "jouer"
+            if not arg:
+                a = (self._msg_tag(msg, "+regles") or "").lower()
+                if a in ("1", "true", "regles", "règles"):
+                    arg = "regles"
+        if not name:
+            return False
+        if not self._orbit_cmd_once(msg.nick, name, arg):
+            return True
+        try:
+            self._dispatch_orbit_cmd(irc, msg, channel, name, arg)
+        except Exception as e:
+            self._log_error(irc, "TAGMSG cmd %s: %s" % (name, e))
+        return True
+
+    def doTagmsg(self, irc, msg):
+        self._handle_orbit_tagmsg(irc, msg)
+
     def inFilter(self, irc, msg):
+        if msg.command == "TAGMSG":
+            self._handle_orbit_tagmsg(irc, msg)
+            return msg
+
         if msg.command != 'PRIVMSG':
             return msg
 

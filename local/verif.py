@@ -52,9 +52,10 @@ class VerifMixin:
                 "PetitBac: TAGMSG %s trop long (%d octets), non envoyé",
                 event_name, len(encoded)
             )
-            return
+            return False
 
         irc.queueMsg(msg)
+        return True
 
     def _compact_score_pairs(self, pairs, limit=10):
         if isinstance(pairs, dict):
@@ -62,7 +63,9 @@ class VerifMixin:
         parts = []
         for item in list(pairs)[:limit]:
             if isinstance(item, (list, tuple)) and len(item) >= 2:
-                parts.append("%s:%s" % (item[0], int(item[1] or 0)))
+                pts = float(item[1] or 0)
+                pts_s = str(int(pts)) if pts == int(pts) else ('%.1f' % pts)
+                parts.append("%s:%s" % (item[0], pts_s))
             elif isinstance(item, dict):
                 nick = item.get("nick") or item.get("user") or ""
                 pts = item.get("pts") or item.get("points") or 0

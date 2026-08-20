@@ -156,6 +156,10 @@ class VoteMixin:
 
             irc.queueMsg(ircmsgs.notice(nick,
                 f"💾 Mode personnalisé créé sous le nom « {nick} ». Tape !jeu {nick} pour l'utiliser."))
+            self._send_event(
+                irc, channel, "mode_created",
+                mode=nick.lower(), cats=categories, duration=duration, rounds=maxrounds,
+            )
             return
 
         # ---------------------------------------------------------

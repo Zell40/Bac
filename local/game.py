@@ -1019,6 +1019,10 @@ class GameMixin:
         # ----------------------------------------------------------------------
         if from_manual:
             irc.queueMsg(ircmsgs.privmsg(channel, "🛑 Partie arrêtée par un opérérateur."))
+            try:
+                self._send_event(irc, channel, "game_stop", reason="op")
+            except Exception:
+                pass
             if channel in self.players:
                 del self.players[channel]
             del self.active_games[channel]
@@ -1034,6 +1038,10 @@ class GameMixin:
             if game["idle_rounds"] >= max_idle:
                 irc.queueMsg(ircmsgs.privmsg(channel,
                     f"💤 Jeu arrêté pour inactivité ({max_idle} manches sans réponse)."))
+                try:
+                    self._send_event(irc, channel, "game_stop", reason="idle")
+                except Exception:
+                    pass
                 if channel in self.players:
                     del self.players[channel]
                 del self.active_games[channel]
@@ -1207,6 +1215,12 @@ class GameMixin:
         # Bonus
         self.scoreboard[nick_key] = self.scoreboard.get(nick_key, 0) + 1
 
+        self._send_event(
+            irc, channel, "full_combo",
+            nick=nick,
+            score=self.scoreboard.get(nick_key, 0),
+        )
+
         # Stats globales
         elapsed = time.time() - game.get("round_start_time", time.time())
         elapsed += game.get("speed_offset", 0)
@@ -1250,6 +1264,8 @@ class GameMixin:
         if not game:
             irc.queueMsg(ircmsgs.privmsg(channel, "❌ Aucune partie en cours."))
             return
+
+        self._send_state_sync(irc, channel)
 
         # Recharger les catégories JSON pour cohérence
         self.data = self._load_categories_json()
