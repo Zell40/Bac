@@ -27,6 +27,18 @@ class EventsMixin:
         allowed = conf.supybot.plugins.PetitBac.allowedChannel()
         return channel.lower() == allowed.lower()
 
+    def _game_channel(self, channel):
+        """Clé réelle dans active_games (le serveur / Orbit peuvent varier la casse)."""
+        if not channel:
+            return channel
+        if channel in self.active_games:
+            return channel
+        cl = channel.lower()
+        for ch in self.active_games:
+            if ch.lower() == cl:
+                return ch
+        return channel
+
     # ----------------------------------------------------------------------
     # Auto-start quand quelqu’un rejoint
     # ----------------------------------------------------------------------
@@ -146,11 +158,11 @@ class EventsMixin:
         self._handle_play_word(irc, msg, text)
 
     def _handle_play_word(self, irc, msg, text, preferred_cat=None):
-        channel = msg.args[0]
-        nick = msg.nick
+        channel = self._game_channel(msg.args[0] if msg.args else "")
+        nick = msg.nick or ""
         nick_key = nick.lower()
 
-        if nick == irc.nick:
+        if not nick or nick == irc.nick:
             return
 
         if not self._is_enabled(channel):
@@ -159,6 +171,8 @@ class EventsMixin:
         if channel not in self.active_games:
             return
 
+        if channel not in self.players:
+            self.players[channel] = set()
         if nick not in self.players[channel]:
             self.players[channel].add(nick)
             if channel not in self.mode_vote and channel not in self.restart_vote:
@@ -606,7 +620,10 @@ class EventsMixin:
     def _msg_tag(self, msg, name):
         tags = getattr(msg, "server_tags", None) or getattr(msg, "tags", None) or {}
         if not isinstance(tags, dict):
-            return ""
+            try:
+                tags = dict(tags)
+            except Exception:
+                return ""
         return self._unescape_irc_tag(self._pb_tag(tags, name))
 
     def _orbit_cmd_once(self, nick, name, arg):
@@ -846,7 +863,7 @@ class EventsMixin:
             return False
         if not msg.args:
             return False
-        channel = msg.args[0]
+        channel = self._game_channel(msg.args[0])
         if not channel or channel[0] not in "#&+!":
             return False
         if self._msg_tag(msg, "+pb") != "v1":
@@ -861,7 +878,10 @@ class EventsMixin:
                 return False
             if not self._orbit_cmd_once(msg.nick, "play", word + "|" + cat):
                 return True
-            self._handle_play_word(irc, msg, word, preferred_cat=cat)
+            try:
+                self._handle_play_word(irc, msg, word, preferred_cat=cat)
+            except Exception as e:
+                self._log_error(irc, "TAGMSG play: %s" % e)
             return True
         if ev != "cmd":
             return False
@@ -900,6 +920,9 @@ class EventsMixin:
         return True
 
     def doTagmsg(self, irc, msg):
+        self._handle_orbit_tagmsg(irc, msg)
+
+    def doTAGMSG(self, irc, msg):
         self._handle_orbit_tagmsg(irc, msg)
 
     def inFilter(self, irc, msg):
